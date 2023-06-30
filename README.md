@@ -8,6 +8,15 @@
 pip install fastapi
 # 并且安装uvicorn来作为服务器
 pip install "uvicorn[standard]"
+
+# Email验证
+pip install pydantic[email]
+
+# 要使用表单，需预先安装 python-multipart
+pip install python-multipart
+
+# 接收上传文件，要预先安装 python-multipart
+pip install python-multipart
 ```
 
 # 简单运行
