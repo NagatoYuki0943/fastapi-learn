@@ -41,6 +41,7 @@ def fake_save_user(user_in: UserIn):
     return user_in_db
 
 
+# http://127.0.0.1:8001/docs
 @app.post("/user", response_model=UserOut)
 async def create_user(user_in: UserIn):
     user_saved = fake_save_user(user_in)
@@ -77,6 +78,7 @@ items = {
 
 
 # 多种相应类型
+# http://127.0.0.1:8001/docs
 @app.get("/items/{item_id}", response_model= PlaneItem | CarItem)
 async def read_item(item_id: ItemID):
     return items[item_id]
@@ -84,7 +86,8 @@ async def read_item(item_id: ItemID):
 
 # 任意 dict 构成的响应
 # 你还可以使用一个任意的普通 dict 声明响应，仅声明键和值的类型，而不使用 Pydantic 模型。
-@app.get("/keyword/", response_model=dict[str, float])
+# http://127.0.0.1:8001/docs
+@app.get("/keyword", response_model=dict[str, float])
 async def read_keyword():
     return {"foo": 2.3, "bar": 3.4}
 

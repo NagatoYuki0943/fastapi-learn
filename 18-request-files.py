@@ -1,7 +1,6 @@
 # https://fastapi.tiangolo.com/zh/tutorial/request-files/
 # 接收上传文件，需预先安装 python-multipart
 # pip install python-multipart
-
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 
@@ -16,9 +15,13 @@ app = FastAPI()
 # 如果把路径操作函数参数的类型声明为 bytes，FastAPI 将以 bytes 形式读取和接收文件内容。
 # 这种方式把文件的所有内容都存储在内存里，适用于小型文件。
 # 不过，很多情况下，UploadFile 更好用。
+# http://127.0.0.1:8001/docs
 @app.post("/files")
 async def create_file(file: bytes = File(default=None)):
-    return {"file_size": len(file)}
+    if not file:
+        return {"message": "No file sent"}
+    else:
+        return {"file_size": len(file)}
 
 
 # UploadFile 与 bytes 相比有更多优势：
@@ -42,23 +45,55 @@ async def create_file(file: bytes = File(default=None)):
 #           - 执行 await myfile.read() 后，需再次读取已读取内容时，这种方法特别好用；
 #       - close()：关闭文件
 # 因为上述方法都是 async 方法，要搭配「await」使用。
+# http://127.0.0.1:8001/docs
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile | None = None):
-    try:
+    if not file:
+        return {"message": "No file sent"}
+    else:
         contents = await file.read()    # async
         # contents = myfile.file.read() # sync
-    except:
-        ...
-    return {"filename": file.filename}
+        results = {"filename": file.filename, "size": file.size, "type": file.content_type}
+        print(file.headers)
+        print(results)
+        return results
 
 
-# 带有额外元数据的 UploadFile¶
+# 带有额外元数据的 UploadFile
 # 您也可以将 File() 与 UploadFile 一起使用，例如，设置额外的元数据:
+# http://127.0.0.1:8001/docs
 @app.post("/uploadfile1")
 async def create_upload_file1(
     file: UploadFile = File(description="A file read as UploadFile"),
 ):
-    return {"filename": file.filename}
+    results = {"filename": file.filename, "size": file.size, "type": file.content_type}
+    print(file.headers)
+    print(results)
+    return results
+
+
+# 多文件上传
+# FastAPI 支持同时上传多个文件。
+# 可用同一个「表单字段」发送含多个文件的「表单数据」。
+# 上传多个文件时，要声明含 bytes 或 UploadFile 的列表（List）
+# http://127.0.0.1:8001/docs
+@app.post("/mulltifiles")
+async def mulltifiles(
+    files: list[bytes] = File(description="Multiple files as bytes")
+):
+    results = {"file_sizes": [len(file) for file in files]}
+    print(results)
+    return results
+
+
+# http://127.0.0.1:8001/docs
+@app.post("/mulltifiles1")
+async def mulltifiles1(
+    files: list[UploadFile] = File(description="Multiple files as UploadFile")
+):
+    results = {"filenames": [file.filename for file in files]}
+    print(results)
+    return results
 
 
 # run: uvicorn main:app --reload --port=8001

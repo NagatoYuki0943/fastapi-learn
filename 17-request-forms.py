@@ -1,13 +1,16 @@
 # https://fastapi.tiangolo.com/zh/tutorial/request-forms/
 # 要使用表单，需预先安装 python-multipart
 # pip install python-multipart
-
 import uvicorn
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Body
 
 
 app = FastAPI()
 
+
+# 可在一个路径操作中声明多个 File 与 Form 参数，但不能同时声明要接收 JSON 的 Body 字段。设定 Body 后不被报错，而是强制使用 Form 发送数据
+# 因为此时请求体的编码为 multipart/form-data，不是 application/json。
+# 这不是 FastAPI 的问题，而是 HTTP 协议的规定。
 
 # 创建表单（Form）参数的方式与 Body 和 Query 一样：
 # 使用 Form 可以声明与 Body （及 Query、Path、Cookie）相同的元数据和验证
@@ -16,9 +19,15 @@ app = FastAPI()
 # 与 JSON 不同，HTML 表单（<form></form>）向服务器发送数据通常使用「特殊」的编码。
 # FastAPI 要确保从正确的位置读取数据，而不是读取 JSON
 # 表单数据的「媒体类型」编码一般为 application/x-www-form-urlencoded
+# http://127.0.0.1:8001/docs
 @app.post("/login")
-async def login(username: str = Form(min_length=3), password: str = Form(min_length=3)):
-    return {"username": username}
+async def login(
+    username: str = Form(min_length=3),
+    password: str = Form(min_length=3),
+    json: str = Body(), # 设定 Body 后不被报错，而是强制使用 Form 发送数据
+    ):
+    results = {"username": username, "json": json}
+    return results
 
 
 # run: uvicorn main:app --reload --port=8001

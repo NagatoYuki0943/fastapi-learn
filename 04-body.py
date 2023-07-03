@@ -10,21 +10,15 @@ app = FastAPI()
 class Item(BaseModel):
     name: str
     description: str | None = None
-    print: float
+    price: float
     tax: float | None = None
 
 
 # 将请求体作为 JSON 读取
-# http://127.0.0.1:8001/docs
-@app.post("/items/")
-async def create_item(item: Item):
-    return item
-
-
 # 在函数内部，你可以直接访问模型对象的所有属性
 # http://127.0.0.1:8001/docs
-@app.post("/items1/")
-async def create_item1(item: Item):
+@app.post("/items")
+async def create_item(item: Item):
     item_dict = item.dict()
     if item.tax:
         price_with_tax = item.price + item.tax
@@ -34,15 +28,15 @@ async def create_item1(item: Item):
 
 # 请求体 + 路径参数
 # http://127.0.0.1:8001/docs
-@app.put("/items2/{item_id}")
-async def create_item2(item_id: int, item: Item):
+@app.put("/items1/{item_id}")
+async def create_item1(item_id: int, item: Item):
     return {"item_id": item_id, **item.dict()}
 
 
 # 请求体 + 路径参数 + 查询参数
 # http://127.0.0.1:8001/items/3?q=what
-@app.put("/items3/{item_id}")
-async def create_item3(item_id: int, item: Item, q: str | None = None):
+@app.put("/items2/{item_id}")
+async def create_item2(item_id: int, item: Item, q: str | None = None):
     result = {"item_id": item_id, **item.dict()}
     if q:
         result.update({"q": q})

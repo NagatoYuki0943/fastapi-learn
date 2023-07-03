@@ -52,6 +52,7 @@ async def update_item1(
 
 # 请求体中的单一值
 # 与使用 Query 和 Path 为查询参数和路径参数定义额外数据的方式相同，FastAPI 提供了一个同等的 Body
+# Body 同样具有与 Query、Path 以及其他后面将看到的类完全相同的额外校验和元数据参数
 # 使用 Body 指示 FastAPI 将其作为请求体的另一个键进行处理
 # http://127.0.0.1:8001/docs
 @app.post("/items2/{item_id}")
@@ -70,6 +71,9 @@ async def update_item2(
 
 
 # 多个请求体参数和查询参数
+# 当然，除了请求体参数外，你还可以在任何需要的时候声明额外的查询参数。
+# 由于默认情况下单一值被解释为查询参数，因此你不必显式地添加 Query，你可以仅执行以下操作：
+#   q: str = None
 # http://127.0.0.1:8001/docs
 @app.post("/items3/{item_id}")
 async def update_item3(

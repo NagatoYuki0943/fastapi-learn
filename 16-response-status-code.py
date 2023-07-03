@@ -29,11 +29,13 @@ app = FastAPI()
 #   - 500 及以上状态码用于服务器端错误。你几乎永远不会直接使用它们。当你的应用程序代码或服务器中的某些部分出现问题时，它将自动返回这些状态代码之一。
 
 
+# http://127.0.0.1:8001/docs
 @app.post("/items", response_model=dict[str, str], status_code=201)
 async def create_item(name: str):
     return {"name": name}
 
 
+# http://127.0.0.1:8001/docs
 @app.post("/items1", response_model=dict[str, str], status_code=status.HTTP_202_ACCEPTED)
 async def create_item1(name: str):
     return {"name": name}
