@@ -34,7 +34,7 @@ app = FastAPI()
 # 因为上述方法都是 async 方法，要搭配「await」使用。
 
 
-ALLOW_SUFFIXES = [".jpg", "jpeg", "png", "fig", "tiff", "webp"]
+ALLOW_SUFFIXES = [".jpg", ".jpeg", ".png", ".fig", ".tiff", ".webp"]
 # 带有额外元数据的 UploadFile
 # 您也可以将 File() 与 UploadFile 一起使用，例如，设置额外的元数据:
 # http://127.0.0.1:8001/docs
