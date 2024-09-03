@@ -41,7 +41,7 @@ def fake_save_user(user_in: UserIn):
     return user_in_db
 
 
-# http://127.0.0.1:8001/docs
+# http://127.0.0.1:8000/docs
 @app.post("/user", response_model=UserOut)
 async def create_user(user_in: UserIn):
     user_saved = fake_save_user(user_in)
@@ -78,7 +78,7 @@ items = {
 
 
 # 多种相应类型
-# http://127.0.0.1:8001/docs
+# http://127.0.0.1:8000/docs
 @app.get("/items/{item_id}", response_model= PlaneItem | CarItem)
 async def read_item(item_id: ItemID):
     return items[item_id]
@@ -86,17 +86,25 @@ async def read_item(item_id: ItemID):
 
 # 任意 dict 构成的响应
 # 你还可以使用一个任意的普通 dict 声明响应，仅声明键和值的类型，而不使用 Pydantic 模型。
-# http://127.0.0.1:8001/docs
+# http://127.0.0.1:8000/docs
 @app.get("/keyword", response_model=dict[str, float])
 async def read_keyword():
     return {"foo": 2.3, "bar": 3.4}
 
 
-# run: uvicorn main:app --reload --port=8001
+# run: uvicorn main:app --reload --port=8000
 #   main: main.py 文件(一个 Python「模块」)。
 #   app: 在 main.py 文件中通过 app = FastAPI() 创建的对象。
 #   --reload: 让服务器在更新代码后重新启动。仅在开发时使用该选项。
 if __name__ == "__main__":
+    import os
     from pathlib import Path
+
+    # 从环境变量中获取端口号，默认为 8000
+    port = int(os.getenv('PORT', 8000))
+
+    # 从环境变量中获取主机地址，默认为 0.0.0.0
+    host = os.getenv('HOST', '0.0.0.0')
+
     file = Path(__file__).stem  # get file name without suffix
-    uvicorn.run(app=f"{file}:app", host="127.0.0.1", port=8001, reload=True)
+    uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)
