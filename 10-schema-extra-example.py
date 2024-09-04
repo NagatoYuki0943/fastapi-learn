@@ -2,6 +2,7 @@
 import uvicorn
 from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field
+from typing import Annotated
 
 
 app = FastAPI()
@@ -16,7 +17,7 @@ class Item(BaseModel):
     class Config:
         schema_extra = {
             "example": {                # docs中默认的例子
-                "name": "NNNNName",
+                "name": "Foo",
                 "description": "A very nice Item",
                 "price": 35.4,
                 "tax": 3.2,
@@ -24,6 +25,9 @@ class Item(BaseModel):
         }
 
 
+# Field 的附加参数
+# 在 Field, Path, Query, Body 和其他你之后将会看到的工厂函数，你可以为JSON 模式声明额外信息，
+# 你也可以通过给工厂函数传递其他的任意参数来给JSON 模式声明额外信息，比如增加 example:
 class Food(BaseModel):
     name: str = Field(example="meat")   # Field也可以用example设置默认提示
     description: str | None = Field(default=None, example="good meat")
@@ -33,22 +37,37 @@ class Food(BaseModel):
 
 # http://127.0.0.1:8000/docs
 @app.post("/items/{item_id}")
-async def update_item(item_id: int, item: Item, food: Food):
-    results = {"item_id": item_id, "item": item, "food": food}
+async def update_item(item_id: int, item: Item):
+    results = {"item_id": item_id, "item": item}
     return results
 
 
-@app.put("/items1/{item_id}")
-async def update_item1(
+# http://127.0.0.1:8000/docs
+@app.post("/items/2{item_id}")
+async def update_item2(item_id: int, food: Food):
+    results = {"item_id": item_id, "food": food}
+    return results
+
+
+# Body 额外参数
+# 你可以通过传递额外信息给 Field 同样的方式操作Path, Query, Body等。
+# 比如，你可以将请求体的一个 example 传递给 Body:
+@app.put("/items2/{item_id}")
+async def update_item2(
     item_id: int,
-    item: Item = Body(  # 使用body设置默认参数
-        example={
-            "name": "NNNNName",
-            "description": "A very nice Item",
-            "price": 15.3,
-            "tax": 3.0,
-        },
-    )
+    item: Annotated[
+        Item,
+        Body(
+            examples=[
+                {
+                    "name": "Foo",
+                    "description": "A very nice Item",
+                    "price": 35.4,
+                    "tax": 3.2,
+                }
+            ],
+        ),
+    ],
 ):
     results = {"item_id": item_id, "item": item}
     return results
@@ -69,4 +88,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)

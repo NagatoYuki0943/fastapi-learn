@@ -56,7 +56,7 @@ async def create_upload_file1(
     # 转化为numpy数组再保存
     array    = np.asarray(bytearray(contents))          # 转化为1维数组
     image    = cv2.imdecode(array, cv2.IMREAD_COLOR)    # 转换为图片
-    cv2.imwrite("18-1.jpg", image)
+    cv2.imwrite("18-2.jpg", image)
 
     # 直接保存也可以
     # with open(filename, mode="wb") as f:
@@ -81,4 +81,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)

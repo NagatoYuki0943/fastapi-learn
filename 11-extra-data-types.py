@@ -8,6 +8,20 @@ from uuid import UUID
 app = FastAPI()
 
 
+# 到目前为止，您一直在使用常见的数据类型，如:
+#     int
+#     float
+#     str
+#     bool
+# 但是您也可以使用更复杂的数据类型。
+
+# 您仍然会拥有现在已经看到的相同的特性:
+#     很棒的编辑器支持。
+#     传入请求的数据转换。
+#     响应数据转换。
+#     数据验证。
+#     自动补全和文档。
+
 # 其他数据类型
 # 下面是一些你可以使用的其他数据类型:
 #   - UUID:
@@ -44,6 +58,7 @@ async def read_items(
     repeat_at: time | None = Body(default=None),            # ex: 07:10:58.704
     process_after: timedelta | None = Body(default=None),   # ex: 1534
 ):
+    # 注意，函数内的参数有原生的数据类型，你可以，例如，执行正常的日期操作，如:
     start_process = start_datetime + process_after
     duration = end_datetime - start_process
     return {
@@ -72,4 +87,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)

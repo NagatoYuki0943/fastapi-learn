@@ -1,32 +1,36 @@
-# https://fastapi.tiangolo.com/zh/tutorial/dependencies/global-dependencies/
+# https://fastapi.tiangolo.com/zh/tutorial/dependencies/dependencies-in-path-operation-decorators/
 import uvicorn
 from fastapi import FastAPI, Depends, Depends, Header, HTTPException
 
 
+app = FastAPI()
+
+
+# 路径操作装饰器依赖项
+# 有时，我们并不需要在路径操作函数中使用依赖项的返回值。
+# 或者说，有些依赖项不返回值。
+# 但仍要执行或解析该依赖项。
+# 对于这种情况，不必在声明路径操作函数的参数时使用 Depends，而是可以在路径操作装饰器中添加一个由 dependencies 组成的 list。
+
+
+# 路径装饰器依赖项可以声明请求的需求项（比如响应头）或其他子依赖项
 async def verify_token(x_token: str = Header()):
     if x_token != "fake-super-secret-token":
+        # 路径装饰器依赖项与正常的依赖项一样，可以 raise 异常
         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
 
 async def verify_key(x_key: str = Header()):
     if x_key != "fake-super-secret-key":
         raise HTTPException(status_code=400, detail="X-Key header invalid")
-    return x_key
+    return x_key    # 无论路径装饰器依赖项是否返回值，路径操作都不会使用这些值。
 
 
-# 有时，我们要为整个应用添加依赖项。
-# 通过与定义路径装饰器依赖项 类似的方式，可以把依赖项添加至整个 FastAPI 应用。
-app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
-
-
-@app.get("/items")
+# 路径操作装饰器支持可选参数 ~ dependencies。
+# 该参数的值是由 Depends() 组成的 list
+@app.get("/items", dependencies=[Depends(verify_token), Depends(verify_key)])
 async def read_items():
-    return [{"item": "Portal Gun"}, {"item": "Plumbus"}]
-
-
-@app.get("/users")
-async def read_users():
-    return [{"username": "Rick"}, {"username": "Morty"}]
+    return [{"item": "Foo"}, {"item": "Bar"}]
 
 
 # run: uvicorn main:app --reload --port=8000
@@ -44,4 +48,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)

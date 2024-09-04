@@ -20,6 +20,8 @@ class User(BaseModel):
 
 
 # 混合使用Path,Query和请求体参数
+# 首先，毫无疑问地，你可以随意地混合使用 Path、Query 和请求体参数声明，FastAPI 会知道该如何处理。
+# 你还可以通过将默认值设置为 None 来将请求体参数声明为可选参数：
 # http://127.0.0.1:8000/docs
 @app.put("/items/{item_id}")
 async def update_item(
@@ -120,4 +122,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)

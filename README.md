@@ -17,6 +17,10 @@ pip install python-multipart
 
 # 接收上传文件，要预先安装 python-multipart
 pip install python-multipart
+
+# 进行测试，需要安装 httpx
+pip install httpx
+pip install pytest
 ```
 
 # 简单运行

@@ -8,17 +8,23 @@ app = FastAPI()
 
 
 class Image(BaseModel):
+    # 除了普通的单一值类型（如 str、int、float 等）外，你还可以使用从 str 继承的更复杂的单一值类型。
     url: HttpUrl    # 该字符串将被检查是否为有效的 URL
     name: str
 
 
+# 嵌套模型
+# Pydantic 模型的每个属性都具有类型。
+# 但是这个类型本身可以是另一个 Pydantic 模型。
+# 因此，你可以声明拥有特定属性名称、类型和校验的深度嵌套的 JSON 对象。
+# 上述这些都可以任意的嵌套。
 class Item(BaseModel):
     name: str
     description: str | None = None
     price: float
     tax: float | None = None
     tags: set[str] = set()              # 标签不应该重复,因此使用set,会自动去重
-    image: list[Image] | None = None    # 嵌套模型
+    image: list[Image] | None = None    # 将子模型用作类型
 
 
 class Offer(BaseModel):
@@ -37,19 +43,19 @@ async def update_item(item_id: int, item: Item):
 # 深度嵌套模型
 # http://127.0.0.1:8000/docs
 @app.put("/offers")
-async def update_item(offer: Offer):
+async def create_offer(offer: Offer):
     return offer
 
 
 # 纯列表请求体
-@app.post("/images")
-async def images(images: list[Image]):
+@app.post("/images/multiple/")
+async def create_multiple_images(images: list[Image]):
     return images
 
 
 # 任意 dict 构成的请求体
 @app.post("/weights")
-async def weights(weights: dict[int, float]):
+async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
@@ -68,4 +74,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)

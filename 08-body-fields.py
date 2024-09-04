@@ -9,8 +9,14 @@ from pydantic import BaseModel, Field
 app = FastAPI()
 
 
+# Field 的工作方式和 Query、Path、Body 相同，参数也相同。
+# 实际上，Query、Path 都是 Params 的子类，而 Params 类又是 Pydantic 中 FieldInfo 的子类。
+# Pydantic 的 Field 返回也是 FieldInfo 的类实例。
+# Body 直接返回的也是 FieldInfo 的子类的对象。后文还会介绍一些 Body 的子类。
+# 注意，从 fastapi 导入的 Query、Path 等对象实际上都是返回特殊类的函数。
 class Item(BaseModel):
     name: str
+    # 使用 Field 定义模型的属性
     description: str | None = Field(
         default=None,
         title="The description of the item", max_length=300
@@ -22,9 +28,10 @@ class Item(BaseModel):
     tax: float | None = None
 
 
+# Body(embed=True) 嵌入单个请求体参数
 # http://127.0.0.1:8000/docs
 @app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item = Body()):
+async def update_item(item_id: int, item: Item = Body(embed=True)):
     results = {"item_id": item_id, "item": item}
     return results
 
@@ -44,4 +51,5 @@ if __name__ == "__main__":
     host = os.getenv('HOST', '0.0.0.0')
 
     file = Path(__file__).stem  # get file name without suffix
+    # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app=f"{file}:app", host=host, port=port, reload=True)
