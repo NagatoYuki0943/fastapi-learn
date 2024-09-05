@@ -9,6 +9,11 @@ from enum import Enum
 app = FastAPI()
 
 
+# 用 PUT 更新数据
+# 更新数据请用 HTTP PUT 操作。
+# 把输入数据转换为以 JSON 格式存储的数据（比如，使用 NoSQL 数据库时），可以使用 jsonable_encoder。例如，把 datetime 转换为 str。
+
+
 class Item(BaseModel):
     name: str | None = None
     description: str | None = None
@@ -17,31 +22,26 @@ class Item(BaseModel):
     tags: list[str] = []
 
 
-class ItemID(str, Enum):
-    foo = "foo"
-    bar = "bar"
-    baz = "baz"
-
-
 items = {
-    ItemID.foo: {"name": "Foo", "price": 50.2},
-    ItemID.bar: {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
-    ItemID.baz: {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
 }
 
 
 # http://127.0.0.1:8000/docs
 @app.get("/items/{item_id}", response_model=Item)
-async def read_item(item_id: ItemID):
+async def read_item(item_id: str):
     return items[item_id]
 
 
 # PUT 用于接收替换现有数据的数据
 # http://127.0.0.1:8000/docs
 @app.put("/items/{item_id}", response_model=Item)
-async def update_item(item_id: ItemID, item: Item):
+async def update_item(item_id: str, item: Item):
     update_item_encoded = jsonable_encoder(item)
     items[item_id] = update_item_encoded
+    print(items[item_id])
     return update_item_encoded
 
 
@@ -60,16 +60,13 @@ async def update_item(item_id: ItemID, item: Item):
 # 然后再用它生成一个只含已设置（在请求中所发送）数据，且省略了默认值的 dict。
 # 接下来，用 .copy() 为已有模型创建调用 update 参数的副本，该参数为包含更新数据的 dict。
 @app.patch("/items1/{item_id}", response_model=Item)
-async def update_item1(item_id: ItemID, item: Item):
-    # 源数据
+async def update_item1(item_id: str, item: Item):
     stored_item_data = items[item_id]
     stored_item_model = Item(**stored_item_data)
-    # 新数据排除默认值
-    update_data = item.dict(exclude_unset=True) # 不包括默认值
-    # 源数据复制一份更新为新数据
-    updated_item = stored_item_model.copy(update=update_data)
-    # 更新到源数据
+    update_data = item.model_dump(exclude_unset=True)
+    updated_item = stored_item_model.model_copy(update=update_data)
     items[item_id] = jsonable_encoder(updated_item)
+    print(items[item_id])
     return updated_item
 
 

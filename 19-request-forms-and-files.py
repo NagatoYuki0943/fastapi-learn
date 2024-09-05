@@ -2,12 +2,12 @@
 # 接收上传文件，需预先安装 python-multipart
 # pip install python-multipart
 import uvicorn
-from fastapi import FastAPI, File, Form, UploadFile, Body, Query
+from fastapi import FastAPI, Path, File, Form, UploadFile, Body, Query
 
 
 app = FastAPI()
 
-
+# 请求表单与文件
 # 可在一个路径操作中声明多个 File 与 Form 参数，但不能同时声明要接收 JSON 的 Body 字段。设定 Body 后不被报错，而是强制使用 Form 发送数据
 # 因为此时请求体的编码为 multipart/form-data，不是 application/json。
 # 这不是 FastAPI 的问题，而是 HTTP 协议的规定。
@@ -16,19 +16,21 @@ app = FastAPI()
 # http://127.0.0.1:8000/docs
 @app.post("/files/{itemsid}")
 async def create_file(
-    itemsid: int,
+    itemsid: int =Path(title="The ID of the item to set"),
     query: str = Query(),
-    file: bytes = File(),
+    file: bytes | None = File(default=None),
+    fileb: UploadFile | None = File(default=None),
     token: str = Form(min_length=3),
-    fileb: UploadFile = File(),
 ):
     results = {
         "itemsid": itemsid,
         "query": query,
-        "file_size": len(file),
-        "fileb_filename": fileb.filename,
         "token": token,
     }
+    if file:
+        results.update({"file_size": len(file)})
+    if fileb:
+        results["fileb_filename"] = fileb.filename
     print(results)
     return results
 

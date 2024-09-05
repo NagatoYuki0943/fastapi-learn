@@ -6,6 +6,7 @@ from fastapi import FastAPI, status
 app = FastAPI()
 
 
+# 响应状态码
 # 与指定响应模型的方式相同，你也可以在以下任意的路径操作中使用 status_code 参数来声明用于响应的 HTTP 状态码：
 #   @app.get()
 #   @app.post()

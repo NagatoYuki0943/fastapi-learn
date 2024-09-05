@@ -1,16 +1,19 @@
-# https://fastapi.tiangolo.com/zh/tutorial/cookie-params/
+# https://fastapi.tiangolo.com/zh/tutorial/header-params/
 import uvicorn
+from typing import Annotated
 from fastapi import FastAPI, Header
 
 
 app = FastAPI()
 
 
+# 声明 Header 参数
 # 可以使用定义 Query, Path 和 Cookie 参数一样的方法定义 Header 参数
+# Header 是 Path、Query、Cookie 的**兄弟类**，都继承自共用的 Param 类。
 # http://127.0.0.1:8000/items
 # http://127.0.0.1:8000/docs
 @app.get("/items")
-async def read_items(user_agent: str | None = Header(default=None)):
+async def read_items(user_agent: Annotated[str | None, Header()] = None):
     return {"User-Agent": user_agent}
 
 
@@ -24,7 +27,7 @@ async def read_items(user_agent: str | None = Header(default=None)):
 # 如果出于某些原因，你需要禁用下划线到连字符的自动转换，设置Header的参数 convert_underscores 为 False:
 @app.get("/items1")
 async def read_items1(
-    strange_header: str | None = Header(default=None, convert_underscores=False)
+    strange_header: Annotated[str | None, Header(convert_underscores=False)] = None,
 ):
     return {"strange_header": strange_header}
 
@@ -35,7 +38,7 @@ async def read_items1(
 # 你可以通过一个Python list 的形式获得重复header的所有值。
 # 比如, 为了声明一个 X-Token header 可以出现多次，你可以这样写：
 @app.get("/items2")
-async def read_items2(x_token: list[str] | None = Header(default=None)):
+async def read_items(x_token: Annotated[list[str] | None, Header()] = None):
     return {"X-Token values": x_token}
 
 

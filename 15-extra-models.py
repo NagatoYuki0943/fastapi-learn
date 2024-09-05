@@ -8,13 +8,41 @@ from enum import Enum
 app = FastAPI()
 
 
-# 通过继承减少代码量
+# 更多模型
+# 书接上文，多个关联模型这种情况很常见。
+# 特别是用户模型，因为：
+#     **输入模型**应该含密码
+#     **输出模型**不应含密码
+#     **数据库模型**需要加密的密码
+
+
+# **user_in.model_dump() 简介
+# Pydantic 的 .model_dump()
+# user_in 是类 UserIn 的 Pydantic 模型。
+# Pydantic 模型支持 .model_dump() 方法，能返回包含模型数据的**字典**。
+# 因此，如果使用如下方式创建 Pydantic 对象 user_in：
+#     user_in = UserIn(username="john", password="secret", email="john.doe@example.com")
+# 就能以如下方式调用：
+#     user_dict = user_in.model_dump()
+# 现在，变量 user_dict中的就是包含数据的**字典**（变量 user_dict 是字典，不是 Pydantic 模型对象）。
+# 以如下方式调用：
+#     print(user_dict)
+# 输出的就是 Python 字典：
+#     {
+#         'username': 'john',
+#         'password': 'secret',
+#         'email': 'john.doe@example.com',
+#         'full_name': None,
+#     }
+
+
 class UserBase(BaseModel):
     username: str
     email: EmailStr
     full_name: str | None = None
 
 
+# 通过继承 UserBase 减少代码量
 class UserIn(UserBase):
     password: str
 
@@ -36,7 +64,7 @@ def fake_save_user(user_in: UserIn):
     """假装存入数据库"""
     hashed_password = fake_password_hasher(user_in.password)
     # UserIn中的password不会保存进UserInDB中
-    user_in_db = UserInDB(**user_in.dict(), hashed_password=hashed_password)
+    user_in_db = UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
     print("User saved! ..not really")
     return user_in_db
 
@@ -54,22 +82,17 @@ class BaseItem(BaseModel):
 
 
 class CarItem(BaseItem):
-    type = "car"
+    type: str = "car"
 
 
 class PlaneItem(BaseItem):
-    type = "plane"
+    type: str = "plane"
     size: int
 
 
-class ItemID(str, Enum):
-    item1 = "item1"
-    item2 = "item2"
-
-
 items = {
-    ItemID.item1: {"description": "All my friends drive a low rider", "type": "car"},
-    ItemID.item2: {
+    "item1": {"description": "All my friends drive a low rider", "type": "car"},
+    "item2": {
         "description": "Music is my aeroplane, it's my aeroplane",
         "type": "plane",
         "size": 5,
@@ -77,11 +100,30 @@ items = {
 }
 
 
-# 多种相应类型
-# http://127.0.0.1:8000/docs
+# Union 或者 anyOf
+# 响应可以声明为两种类型的 Union 类型，即该响应可以是两种类型中的任意类型。
+# 在 OpenAPI 中可以使用 anyOf 定义。# http://127.0.0.1:8000/docs
 @app.get("/items/{item_id}", response_model= PlaneItem | CarItem)
-async def read_item(item_id: ItemID):
+async def read_item(item_id: str):
     return items[item_id]
+
+
+class Item(BaseModel):
+    name: str
+    description: str
+
+
+items1 = [
+    {"name": "Foo", "description": "There comes my hero"},
+    {"name": "Red", "description": "It's my aeroplane"},
+]
+
+
+# 模型列表
+# 使用同样的方式也可以声明由对象列表构成的响应。
+@app.get("/items/", response_model=list[Item])
+async def read_items():
+    return items1
 
 
 # 任意 dict 构成的响应

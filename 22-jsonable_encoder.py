@@ -8,9 +8,12 @@ from datetime import datetime
 
 app = FastAPI()
 
+# JSON 兼容编码器
+# 在某些情况下，您可能需要将数据类型（如Pydantic模型）转换为与JSON兼容的数据类型（如dict、list等）。
+# 比如，如果您需要将其存储在数据库中。
+# 对于这种要求， **FastAPI**提供了jsonable_encoder()函数。
 
-# 在某些情况下，您可能需要将数据类型（如Pydantic模型）转换为与JSON兼容的数据类型（如dict、list等）
-# 可以使用jsonable_encoder
+# 使用jsonable_encoder
 # 让我们假设你有一个数据库名为fake_db，它只能接收与JSON兼容的数据。
 # 例如，它不接收datetime这类的对象，因为这些对象与JSON不兼容。
 # 因此，datetime对象必须将转换为包含ISO格式化的str类型对象。

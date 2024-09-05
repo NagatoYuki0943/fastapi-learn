@@ -1,6 +1,9 @@
 # https://fastapi.tiangolo.com/zh/tutorial/handling-errors/
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import JSONResponse
 # FastAPI 提供了与 starlette.responses 相同的 fastapi.responses 作为快捷方式，但大部分响应操作都可以直接从 Starlette 导入。同理，Request 也是如此。
 
@@ -20,13 +23,16 @@ app = FastAPI()
 # 4XX 状态码与表示请求成功的 2XX（200 至 299） HTTP 状态码类似。
 # 只不过，4XX 状态码表示客户端发生的错误。
 
+# 使用 HTTPException
+# 向客户端返回 HTTP 错误响应，可以使用 HTTPException。
+# 导入 HTTPException
 # 触发 HTTPException
 # HTTPException 是额外包含了和 API 有关数据的常规 Python 异常。
 # 因为是 Python 异常，所以不能 return，只能 raise。
 # 如在调用路径操作函数里的工具函数时，触发了 HTTPException，FastAPI 就不再继续执行路径操作函数中的后续代码，而是立即终止请求，并把 HTTPException 的 HTTP 错误发送至客户端。
 # 在介绍依赖项与安全的章节中，您可以了解更多用 raise 异常代替 return 值的优势。
 # 本例中，客户端用 ID 请求的 item 不存在时，触发状态码为 404 的异常：
-
+# 添加自定义响应头
 # 有些场景下要为 HTTP 错误添加自定义响应头。例如，出于某些方面的安全需要。
 # 一般情况下可能不会需要在代码中直接使用响应头。
 
@@ -70,6 +76,31 @@ async def read_unicorns(name: str):
     if name == "yolo":
         raise UnicornException(name=name)
     return {"unicorn_name": name}
+
+
+# 覆盖默认异常处理器
+# FastAPI 自带了一些默认异常处理器。
+# 触发 HTTPException 或请求无效数据时，这些处理器返回默认的 JSON 响应结果。
+# 不过，也可以使用自定义处理器覆盖默认异常处理器。
+
+# 覆盖请求验证异常
+# 请求中包含无效数据时，FastAPI 内部会触发 RequestValidationError。
+# 该异常也内置了默认异常处理器。
+# 覆盖默认异常处理器时需要导入 RequestValidationError，并用 @app.excption_handler(RequestValidationError) 装饰异常处理器。
+# 这样，异常处理器就可以接收 Request 与异常。
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=400)
+
+
+@app.get("/items1/{item_id}")
+async def read_item1(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Nope! I don't like 3.")
+    return {"item_id": item_id}
+
+
 
 
 # run: uvicorn main:app --reload --port=8000

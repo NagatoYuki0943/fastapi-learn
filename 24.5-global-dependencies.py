@@ -14,6 +14,7 @@ async def verify_key(x_key: str = Header()):
     return x_key
 
 
+# 全局依赖项
 # 有时，我们要为整个应用添加依赖项。
 # 通过与定义路径装饰器依赖项 类似的方式，可以把依赖项添加至整个 FastAPI 应用。
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])

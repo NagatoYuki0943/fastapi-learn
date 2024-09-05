@@ -7,6 +7,11 @@ from fastapi import FastAPI, File, UploadFile
 
 app = FastAPI()
 
+# 什么是 「表单数据」
+# 与 JSON 不同，HTML 表单（<form></form>）向服务器发送数据通常使用「特殊」的编码。
+# FastAPI 要确保从正确的位置读取数据，而不是读取 JSON。
+# 不包含文件时，表单数据一般用 application/x-www-form-urlencoded「媒体类型」编码。
+# 但表单包含文件时，编码为 multipart/form-data。使用了 File，FastAPI 就知道要从请求体的正确位置获取文件。
 
 # 创建文件（File）参数的方式与 Body 和 Form 一样
 # File 是直接继承自 Form 的类
@@ -17,11 +22,8 @@ app = FastAPI()
 # 不过，很多情况下，UploadFile 更好用。
 # http://127.0.0.1:8000/docs
 @app.post("/files")
-async def create_file(file: bytes = File(default=None)):
-    if not file:
-        return {"message": "No file sent"}
-    else:
-        return {"file_size": len(file)}
+async def create_file(file: bytes = File()):
+    return {"file_size": len(file)}
 
 
 # UploadFile 与 bytes 相比有更多优势：
@@ -45,25 +47,42 @@ async def create_file(file: bytes = File(default=None)):
 #           - 执行 await myfile.read() 后，需再次读取已读取内容时，这种方法特别好用；
 #       - close()：关闭文件
 # 因为上述方法都是 async 方法，要搭配「await」使用。
+# 使用 async 方法时，FastAPI 在线程池中执行文件方法，并 await 操作完成。
+# FastAPI 的 UploadFile 直接继承自 Starlette 的 UploadFile，但添加了一些必要功能，使之与 Pydantic 及 FastAPI 的其它部件兼容。
 # http://127.0.0.1:8000/docs
 @app.post("/uploadfile")
-async def create_upload_file(file: UploadFile | None = None):
+async def create_upload_file(file: UploadFile):
+    contents = await file.read()    # async
+    # contents = file.file.read() # sync
+    results = {"filename": file.filename, "size": file.size, "type": file.content_type}
+    print(file.headers)
+    print(results)
+    return results
+
+
+# 可选文件上传
+# 您可以通过使用标准类型注解并将 None 作为默认值的方式将一个文件参数设为可选:
+@app.post("/file1/")
+async def create_file1(file: bytes | None = File(default=None)):
     if not file:
         return {"message": "No file sent"}
     else:
-        contents = await file.read()    # async
-        # contents = myfile.file.read() # sync
-        results = {"filename": file.filename, "size": file.size, "type": file.content_type}
-        print(file.headers)
-        print(results)
-        return results
+        return {"file_size": len(file)}
+
+
+@app.post("/uploadfile1/")
+async def create_upload_file1(file: UploadFile | None = None):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+        return {"filename": file.filename}
 
 
 # 带有额外元数据的 UploadFile
 # 您也可以将 File() 与 UploadFile 一起使用，例如，设置额外的元数据:
 # http://127.0.0.1:8000/docs
-@app.post("/uploadfile1")
-async def create_upload_file1(
+@app.post("/uploadfile2")
+async def create_upload_file2(
     file: UploadFile = File(description="A file read as UploadFile"),
 ):
     results = {"filename": file.filename, "size": file.size, "type": file.content_type}

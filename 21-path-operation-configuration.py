@@ -15,6 +15,7 @@ class Item(BaseModel):
     tags: set[str] = set()
 
 
+# 路径操作配置
 # status_code 状态码
 # status_code 用于定义路径操作响应中的 HTTP 状态码。
 # 可以直接传递 int 代码， 比如 404。
@@ -59,7 +60,6 @@ async def read_items2():
     - **tags**: a set of unique tag strings for this item
     """
     return [{"name": "Foo", "price": 42}]
-
 
 
 # response_description 参数用于定义响应的描述说明

@@ -6,21 +6,26 @@ from fastapi import FastAPI, Depends, Cookie
 app = FastAPI()
 
 
+# 子依赖项
 # FastAPI 支持创建含子依赖项的依赖项。
 # 并且，可以按需声明任意深度的子依赖项嵌套层级。
 # FastAPI 负责处理解析不同深度的子依赖项。
 
 
 # 第一层依赖项
+# 这段代码声明了类型为 str 的可选查询参数 q，然后返回这个查询参数。
+# 这个函数很简单（不过也没什么用），但却有助于让我们专注于了解子依赖项的工作方式。
 def query_extractor(q: str | None = None):
     return q
 
 
 # 第二层依赖项
-# - 尽管该函数自身是依赖项，但还声明了另一个依赖项（它「依赖」于其他对象）
-#   - 该函数依赖 query_extractor, 并把 query_extractor 的返回值赋给参数 q
-# - 同时，该函数还声明了类型是 str 的可选 cookie（last_query）
-#   - 用户未提供查询参数 q 时，则使用上次使用后保存在 cookie 中的查询
+# 接下来，创建另一个依赖项函数，并同时用该依赖项自身再声明一个依赖项（所以这也是一个「依赖项」）：
+# 这里重点说明一下声明的参数：
+#   - 尽管该函数自身是依赖项，但还声明了另一个依赖项（它「依赖」于其他对象）
+#       - 该函数依赖 query_extractor, 并把 query_extractor 的返回值赋给参数 q
+#   - 同时，该函数还声明了类型是 str 的可选 cookie（last_query）
+#       - 用户未提供查询参数 q 时，则使用上次使用后保存在 cookie 中的查询
 def query_or_cookie_extractor(
     q: str = Depends(query_extractor),
     last_query: str | None = Cookie(default=None),
