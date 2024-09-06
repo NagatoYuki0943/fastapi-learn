@@ -71,6 +71,25 @@ async def read_items1(commons: CommonQueryParams = Depends(CommonQueryParams)):
     return response
 
 
+# 快捷方式
+# FastAPI 为这些情况提供了一个快捷方式，在这些情况下，依赖项 明确地 是一个类，FastAPI 将 "调用" 它来创建类本身的一个实例。
+# 对于这些特定的情况，您可以跟随以下操作：
+# 不是写成这样：
+#     commons: CommonQueryParams = Depends(CommonQueryParams)
+# ...而是这样写:
+#     commons: CommonQueryParams = Depends()
+# 您声明依赖项作为参数的类型，并使用 Depends() 作为该函数的参数的 "默认" 值(在 = 之后)，而在 Depends() 中没有任何参数，而不是在 Depends(CommonQueryParams) 编写完整的类。
+# ... FastAPI 会知道怎么处理。
+@app.get("/items2/")
+async def read_items2(commons: CommonQueryParams = Depends()):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
+
+
 # run: uvicorn main:app --reload --port=8000
 #   main: main.py 文件(一个 Python「模块」)。
 #   app: 在 main.py 文件中通过 app = FastAPI() 创建的对象。
