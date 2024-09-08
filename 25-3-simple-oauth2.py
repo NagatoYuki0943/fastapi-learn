@@ -57,9 +57,6 @@ def fake_hash_password(password: str):
     return "fakehashed" + password
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
 class User(BaseModel):
     username: str
     email: str | None = None
@@ -90,6 +87,11 @@ def fake_decode_token(token):
 # 为此，要再创建一个依赖项 get_current_active_user，此依赖项以 get_current_user 依赖项为基础。
 # 如果用户不存在，或状态为未激活，这两个依赖项都会返回 HTTP 错误。
 # 因此，在端点中，只有当用户存在、通过身份验证、且状态为激活时，才能获得该用户：
+
+# 创建 OAuth2 密码端点。
+# 该端点用于获取 Bearer 访问令牌。
+# 该端点需要用户名和密码，并返回 Bearer 访问令牌。
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # "说明"
 # 此处返回值为 Bearer 的响应头 WWW-Authenticate 也是规范的一部分。
@@ -126,6 +128,15 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 # - 可选的 scope 字段，由多个空格分隔的字符串组成的长字符串
 # - 可选的 grant_type
 
+# ** post("/token") 和 OAuth2PasswordBearer(tokenUrl="token") 中的 url 必须相同 **
+# https://claude.ai/chat/b67ba070-c27f-42e9-8173-4a3487ebc399
+#   1. 这两个 URL 是相匹配的，这不是巧合，而是有意为之。OAuth2PasswordBearer 中的 tokenUrl 应该与实际处理登录请求的端点 URL 相匹配。
+#   2. 这种匹配是必要的，因为 OAuth2PasswordBearer 使用 tokenUrl 来告诉 OpenAPI（Swagger）文档在哪里可以获取令牌。
+#      当用户尝试在 Swagger UI 中进行身份验证时，它会知道向哪个 URL 发送凭证。
+#   3. 然而，URL 本身不必一定是 "token"。您可以选择任何有意义的 URL 路径，
+#      只要保证 OAuth2PasswordBearer 中的 tokenUrl 和实际的登录端点 URL 保持一致即可。例如，可以将它们都改为 "/login"：
+
+
 # form_data: OAuth2PasswordRequestForm = Depends() 依赖注入快捷方式
 # http://127.0.0.1:8000/docs
 @app.post("/token")
@@ -146,7 +157,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # 响应返回的内容应该包含 token_type。本例中用的是**Bearer**Token，因此， Token 类型应为**bearer**。
     # 返回内容还应包含 access_token 字段，它是包含权限 Token 的字符串。
     # 本例只是简单的演示，返回的 Token 就是 username，但这种方式极不安全。
-    return {"access_token": user.username + "-token", "token_type": "bearer"}
+    return {"access_token": user.username, "token_type": "bearer"}
     # "提示"
     # 按规范的要求，应像本示例一样，返回带有 access_token 和 token_type 的 JSON 对象。
     # 这是开发者必须在代码中自行完成的工作，并且要确保使用这些 JSON 的键。
@@ -155,9 +166,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 # http://127.0.0.1:8000/docs
-@app.get("/users/me")
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+@app.get("/users/me", response_model=User)
+async def read_users_me(current_user: UserInDB = Depends(get_current_active_user)):
+    print(current_user)
     return current_user
+
+
+# 在使用 johndoe 和 secret 登录之后,请求 users/me 路径时的请求如下
+#   curl -X 'GET' \
+#       'http://127.0.0.1:8000/users/me' \
+#       -H 'accept: application/json' \
+#       -H 'Authorization: Bearer johndoe'  # 使用 johndoe 的 Bearer token 进行身份验证
+# 这就是 Bearer Token 身份验证的过程。
 
 
 # run: uvicorn main:app --reload --port=8000
