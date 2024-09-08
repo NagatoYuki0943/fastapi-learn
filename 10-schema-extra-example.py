@@ -14,15 +14,17 @@ class Item(BaseModel):
     price: float
     tax: float | None = None
 
-    class Config:
-        schema_extra = {
-            "example": {                # docs中默认的例子
-                "name": "Foo",
-                "description": "A very nice Item",
-                "price": 35.4,
-                "tax": 3.2,
-            }
-        }
+    # 已经废弃的 Config 类, 请使用每个字段的 Field 或 Annotated 类代替
+    # https://claude.ai/chat/7732a202-0acb-4e58-a623-c1e9b563f6ae
+    # class Config:
+        # schema_extra = {
+        #     "example": {                # docs中默认的例子
+        #         "name": "Foo",
+        #         "description": "A very nice Item",
+        #         "price": 35.4,
+        #         "tax": 3.2,
+        #     }
+        # }
 
 
 # Field 的附加参数
@@ -43,8 +45,8 @@ async def update_item(item_id: int, item: Item):
 
 
 # http://127.0.0.1:8000/docs
-@app.post("/items/2{item_id}")
-async def update_item2(item_id: int, food: Food):
+@app.post("/items1/{item_id}")
+async def update_item1(item_id: int, food: Food):
     results = {"item_id": item_id, "food": food}
     return results
 
