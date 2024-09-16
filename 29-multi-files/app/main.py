@@ -54,5 +54,3 @@ async def root():
 # 多次使用不同的 prefix 包含同一个路由器
 # 你也可以在*同一*路由器上使用不同的前缀来多次使用 .include_router()。
 # 在有些场景这可能有用，例如以不同的前缀公开同一个的 API，比方说 /api/v1 和 /api/latest。
-
-

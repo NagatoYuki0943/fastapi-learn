@@ -17,21 +17,21 @@ class Item(BaseModel):
     # 已经废弃的 Config 类, 请使用每个字段的 Field 或 Annotated 类代替
     # https://claude.ai/chat/7732a202-0acb-4e58-a623-c1e9b563f6ae
     # class Config:
-        # schema_extra = {
-        #     "example": {                # docs中默认的例子
-        #         "name": "Foo",
-        #         "description": "A very nice Item",
-        #         "price": 35.4,
-        #         "tax": 3.2,
-        #     }
-        # }
+    # schema_extra = {
+    #     "example": {                # docs中默认的例子
+    #         "name": "Foo",
+    #         "description": "A very nice Item",
+    #         "price": 35.4,
+    #         "tax": 3.2,
+    #     }
+    # }
 
 
 # Field 的附加参数
 # 在 Field, Path, Query, Body 和其他你之后将会看到的工厂函数，你可以为JSON 模式声明额外信息，
 # 你也可以通过给工厂函数传递其他的任意参数来给JSON 模式声明额外信息，比如增加 example:
 class Food(BaseModel):
-    name: str = Field(example="meat")   # Field也可以用example设置默认提示
+    name: str = Field(example="meat")  # Field也可以用example设置默认提示
     description: str | None = Field(default=None, example="good meat")
     price: float = Field(example=5.3)
     tax: float | None = Field(default=None, example=0.5)
@@ -84,10 +84,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

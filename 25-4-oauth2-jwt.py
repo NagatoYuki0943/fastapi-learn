@@ -10,10 +10,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 # passlib 和 bcrypt 用于密码哈希, 验证密码成功后返回 JWT 令牌
 # from passlib.context import CryptContext    # pip install passlib bcrypt==4.0.1
-import bcrypt                               # pip install bcrypt
+import bcrypt  # pip install bcrypt
 
 # PyJWT 用于生成和验证 JWT 令牌(每次前端都传递令牌，服务器验证令牌后才允许访问)
-import jwt                                  # pip install pyjwt
+import jwt  # pip install pyjwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
 
@@ -141,7 +141,9 @@ def get_user(db, username: str) -> UserInDB | None:
 
 
 # 验证用户名和密码，并返回用户。
-def authenticate_user(fake_db, username: str, password: str) -> UserInDB | Literal[False]:
+def authenticate_user(
+    fake_db, username: str, password: str
+) -> UserInDB | Literal[False]:
     user = get_user(fake_db, username)
     # 用户是否存在
     if not user:
@@ -228,11 +230,7 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     # 验证用户名和密码
-    user = authenticate_user(
-        fake_users_db,
-        form_data.username,
-        form_data.password
-    )
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -280,10 +278,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

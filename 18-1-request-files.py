@@ -13,6 +13,7 @@ app = FastAPI()
 # 不包含文件时，表单数据一般用 application/x-www-form-urlencoded「媒体类型」编码。
 # 但表单包含文件时，编码为 multipart/form-data。使用了 File，FastAPI 就知道要从请求体的正确位置获取文件。
 
+
 # 创建文件（File）参数的方式与 Body 和 Form 一样
 # File 是直接继承自 Form 的类
 # 声明文件体必须使用 File，否则，FastAPI 会把该参数当作查询参数或请求体（JSON）参数。
@@ -34,6 +35,7 @@ async def create_file(file: bytes = File()):
 #   - 自带 file-like async 接口；
 #   - 暴露的 Python SpooledTemporaryFile 对象，可直接传递给其他预期「file-like」对象的库。
 
+
 # UploadFile
 #   - UploadFile 的属性如下：
 #       - filename：上传文件名字符串（str），例如， myimage.jpg；
@@ -52,7 +54,7 @@ async def create_file(file: bytes = File()):
 # http://127.0.0.1:8000/docs
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile):
-    contents = await file.read()    # async
+    contents = await file.read()  # async
     # contents = file.file.read() # sync
     results = {"filename": file.filename, "size": file.size, "type": file.content_type}
     print(file.headers)
@@ -97,9 +99,7 @@ async def create_upload_file2(
 # 上传多个文件时，要声明含 bytes 或 UploadFile 的列表（List）
 # http://127.0.0.1:8000/docs
 @app.post("/mulltifiles")
-async def mulltifiles(
-    files: list[bytes] = File(description="Multiple files as bytes")
-):
+async def mulltifiles(files: list[bytes] = File(description="Multiple files as bytes")):
     results = {"file_sizes": [len(file) for file in files]}
     print(results)
     return results
@@ -108,7 +108,7 @@ async def mulltifiles(
 # http://127.0.0.1:8000/docs
 @app.post("/mulltifiles1")
 async def mulltifiles1(
-    files: list[UploadFile] = File(description="Multiple files as UploadFile")
+    files: list[UploadFile] = File(description="Multiple files as UploadFile"),
 ):
     results = {"filenames": [file.filename for file in files]}
     print(results)
@@ -124,10 +124,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

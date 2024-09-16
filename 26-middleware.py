@@ -26,6 +26,7 @@ app = FastAPI()
 #   - 然后它将返回由相应的路径操作生成的 response.
 # - 然后你可以在返回 response 前进一步修改它.
 
+
 # 可以添加自定义请求头 X-Process-Time 包含以秒为单位的接收请求和生成响应的时间:
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
@@ -51,10 +52,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

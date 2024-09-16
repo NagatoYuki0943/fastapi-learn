@@ -54,9 +54,7 @@ def get_query(background_tasks: BackgroundTasks, q: str | None = None):
 # FastAPI 知道在每种情况下该做什么以及如何复用同一对象，因此所有后台任务被合并在一起并且随后在后台运行：
 @app.post("/send-notification2/{email}")
 async def send_notification2(
-    email: str,
-    background_tasks: BackgroundTasks,
-    q: Annotated[str, Depends(get_query)]
+    email: str, background_tasks: BackgroundTasks, q: Annotated[str, Depends(get_query)]
 ):
     message = f"message to {email}\n"
     background_tasks.add_task(write_log, message)
@@ -72,10 +70,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

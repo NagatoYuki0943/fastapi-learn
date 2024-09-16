@@ -22,7 +22,11 @@ async def read_items(q: str | None = None):
 # http://127.0.0.1:8000/items1?q=what
 # http://127.0.0.1:8000/items1?q=fixedquery
 @app.get("/items1")
-async def read_items1(q: str | None = Query(default=None, min_length=3, max_length=10, regex=r"^\w{3, 50}$")):
+async def read_items1(
+    q: str | None = Query(
+        default=None, min_length=3, max_length=10, regex=r"^\w{3, 50}$"
+    ),
+):
     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
         results.update({"q": q})
@@ -44,7 +48,9 @@ async def read_items2(q: str):
 # http://127.0.0.1:8000/items3
 # http://127.0.0.1:8000/items3?q=what
 @app.get("/items3")
-async def read_items3(q: str = Query(min_length=3, max_length=10)): # Query(default=...)也是必须参数
+async def read_items3(
+    q: str = Query(min_length=3, max_length=10),
+):  # Query(default=...)也是必须参数
     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
         results.update({"q": q})
@@ -102,7 +108,7 @@ async def read_items8(
         title="Query string",
         description="Query string for the items to search in the database that have a good match",
         min_length=3,
-    )
+    ),
 ):
     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
@@ -158,10 +164,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

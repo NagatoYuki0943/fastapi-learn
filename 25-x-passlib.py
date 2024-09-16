@@ -1,4 +1,4 @@
-from passlib.context import CryptContext    # pip install passlib bcrypt==4.0.1
+from passlib.context import CryptContext  # pip install passlib bcrypt==4.0.1
 # passlib 2020年停止更新, 因此直接使用 bcrytp 库代替
 
 

@@ -6,11 +6,11 @@ from sqlalchemy.orm import sessionmaker
 # 为 SQLAlchemy 定义数据库 URL地址
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
-SQLALCHEMY_DATABASE_URL = 'mysql+pymysql://root:root@127.0.0.1:3306/test'
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:root@127.0.0.1:3306/test"
 
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, # connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL,  # connect_args={"check_same_thread": False}
 )
 # connect_args={"check_same_thread": False}
 # ...仅用于SQLite，在其他数据库不需要它。

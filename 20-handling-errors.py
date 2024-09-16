@@ -38,6 +38,7 @@ app = FastAPI()
 
 items = {"foo": "The Foo Wrestlers"}
 
+
 # http://127.0.0.1:8000/docs
 @app.get("/items/{item_id}")
 async def read_item(item_id: str):
@@ -45,7 +46,7 @@ async def read_item(item_id: str):
         raise HTTPException(
             status_code=404,
             detail="Item not found",
-            headers={"X-Error": "There goes my error"}, # 添加自定义响应头
+            headers={"X-Error": "There goes my error"},  # 添加自定义响应头
         )
     return {"item": items[item_id]}
 
@@ -66,6 +67,7 @@ async def unicorn_exception_handler(request: Request, exc: UnicornException):
         status_code=418,
         content={"message": f"Oops! {exc.name} did something. There goes a rainbow..."},
     )
+
 
 # 请求 http://127.0.0.1:800/unicorns/yolo 时，路径操作会触发 UnicornException。
 # 但该异常将会被 unicorn_exception_handler 处理。
@@ -89,6 +91,7 @@ async def read_unicorns(name: str):
 # 覆盖默认异常处理器时需要导入 RequestValidationError，并用 @app.excption_handler(RequestValidationError) 装饰异常处理器。
 # 这样，异常处理器就可以接收 Request 与异常。
 
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     return PlainTextResponse(str(exc), status_code=400)
@@ -101,8 +104,6 @@ async def read_item1(item_id: int):
     return {"item_id": item_id}
 
 
-
-
 # run: uvicorn main:app --reload --port=8000
 #   main: main.py 文件(一个 Python「模块」)。
 #   app: 在 main.py 文件中通过 app = FastAPI() 创建的对象。
@@ -112,10 +113,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

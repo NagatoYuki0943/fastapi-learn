@@ -14,7 +14,7 @@ print(key)
 fernet = Fernet(key)
 
 secret = "my_secret"
-secret_encoded = secret.encode('utf-8')
+secret_encoded = secret.encode("utf-8")
 print(secret_encoded)
 # b'my_secret'
 
@@ -27,7 +27,7 @@ print(decrypted)
 # b'my_secret'
 
 # 每次加密后，密钥都会变化，所以无法直接解密
-encrypted = fernet.encrypt(secret_encoded).decode('utf-8')
+encrypted = fernet.encrypt(secret_encoded).decode("utf-8")
 print(encrypted)
 # gAAAAABm3YjY3BiwoUEiMDalYC3lbdz2U-tRPruzAIkfTLqv70OUvPnIbV846O6249rrPKEYHnarWzxDqkdfqPKU03EXnadbDA==
 

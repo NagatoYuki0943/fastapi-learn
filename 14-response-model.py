@@ -1,7 +1,7 @@
 # https://fastapi.tiangolo.com/zh/tutorial/response-model/
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel, EmailStr # pip install pydantic[email]
+from pydantic import BaseModel, EmailStr  # pip install pydantic[email]
 from enum import Enum
 
 
@@ -93,11 +93,7 @@ items = {
 # tags: list[str] = [] 具有一个空列表作为默认值： [].
 # 但如果它们并没有存储实际的值，你可能想从结果中忽略它们的默认值
 # 你可以设置*路径操作装饰器*的 response_model_exclude_unset=True 参数：
-@app.post(
-    "/items2/{item_id}",
-    response_model=Item,
-    response_model_exclude_unset=True
-)
+@app.post("/items2/{item_id}", response_model=Item, response_model_exclude_unset=True)
 async def read_item2(item_id: str):
     return items[item_id]
 
@@ -116,6 +112,7 @@ async def read_item2(item_id: str):
 )
 async def read_item_name(item_id: str):
     return items[item_id]
+
 
 @app.get("/items/{item_id}/public", response_model=Item, response_model_exclude={"tax"})
 async def read_item_public_data(item_id: str):
@@ -142,10 +139,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

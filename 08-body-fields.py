@@ -18,12 +18,11 @@ class Item(BaseModel):
     name: str
     # 使用 Field 定义模型的属性
     description: str | None = Field(
-        default=None,
-        title="The description of the item", max_length=300
+        default=None, title="The description of the item", max_length=300
     )
     price: float = Field(
-        gt=0,   # 必须大于0
-        description="The price must be greater than zero"
+        gt=0,  # 必须大于0
+        description="The price must be greater than zero",
     )
     tax: float | None = None
 
@@ -45,10 +44,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

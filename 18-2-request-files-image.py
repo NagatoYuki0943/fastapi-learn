@@ -35,6 +35,8 @@ app = FastAPI()
 
 
 ALLOW_SUFFIXES = [".jpg", ".jpeg", ".png", ".gif", ".tiff", ".webp"]
+
+
 # 带有额外元数据的 UploadFile
 # 您也可以将 File() 与 UploadFile 一起使用，例如，设置额外的元数据:
 # http://127.0.0.1:8000/docs
@@ -51,18 +53,23 @@ async def create_upload_file1(
             detail=f"suffix must be in {ALLOW_SUFFIXES}",
         )
 
-    contents = await file.read()                        # async read
+    contents = await file.read()  # async read
 
     # 转化为numpy数组再保存
-    array    = np.asarray(bytearray(contents))          # 转化为1维数组
-    image    = cv2.imdecode(array, cv2.IMREAD_COLOR)    # 转换为图片
+    array = np.asarray(bytearray(contents))  # 转化为1维数组
+    image = cv2.imdecode(array, cv2.IMREAD_COLOR)  # 转换为图片
     cv2.imwrite("18-2.jpg", image)
 
     # 直接保存也可以
     # with open(filename, mode="wb") as f:
     #     f.write(contents)
 
-    results  = {"filename": file.filename, "size": file.size, "type": file.content_type, "shape": image.shape}
+    results = {
+        "filename": file.filename,
+        "size": file.size,
+        "type": file.content_type,
+        "shape": image.shape,
+    }
     return results
 
 
@@ -75,10 +82,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

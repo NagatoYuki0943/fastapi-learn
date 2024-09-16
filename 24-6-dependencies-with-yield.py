@@ -4,7 +4,6 @@ import uvicorn
 from fastapi import FastAPI, Depends, Depends, Header, HTTPException
 
 
-
 app = FastAPI()
 
 
@@ -14,15 +13,14 @@ app = FastAPI()
 
 
 class DBSession:
-    def __init__(self) -> None:
-        ...
+    def __init__(self) -> None: ...
 
-    def close(self):
-        ...
+    def close(self): ...
 
 
 # 使用 yield 的数据库依赖项
 # 例如，你可以使用这种方式创建一个数据库会话，并在完成后关闭它。
+
 
 async def get_db():
     # 在发送响应之前，只会执行 yield 语句及之前的代码：
@@ -43,21 +41,20 @@ async def get_db():
 
 
 class DepA:
-    def __init__(self) -> None:
-        ...
+    def __init__(self) -> None: ...
+
 
 class DepB:
-    def __init__(self) -> None:
-        ...
+    def __init__(self) -> None: ...
 
-def generate_dep_a():
-    ...
 
-def generate_dep_b():
-    ...
+def generate_dep_a(): ...
 
-def generate_dep_c():
-    ...
+
+def generate_dep_b(): ...
+
+
+def generate_dep_c(): ...
 
 
 # 使用 yield 的子依赖项
@@ -152,7 +149,7 @@ def get_username2():
         yield "Rick"
     except InternalError:
         print("We don't swallow the internal error here, we raise again 😎")
-        raise   # 你可以使用 raise 再次抛出捕获到的异常。
+        raise  # 你可以使用 raise 再次抛出捕获到的异常。
 
 
 @app.get("/items2/{item_id}")
@@ -177,10 +174,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

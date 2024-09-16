@@ -22,6 +22,7 @@ app = FastAPI()
 #     数据验证。
 #     自动补全和文档。
 
+
 # 其他数据类型
 # 下面是一些你可以使用的其他数据类型:
 #   - UUID:
@@ -52,11 +53,13 @@ app = FastAPI()
 # http://127.0.0.1:8000/docs
 @app.post("/items/{item_id}")
 async def read_items(
-    item_id: UUID,                                          # ex: 6F9619FF-8B86-D011-B42D-00C04FC964FF
-    start_datetime: datetime | None = Body(default=None),   # ex: 2023-06-30T07:07:47.369Z
-    end_datetime: datetime | None = Body(default=None),     # ex: 2023-06-30T07:07:47.369Z
-    repeat_at: time | None = Body(default=None),            # ex: 07:10:58.704
-    process_after: timedelta | None = Body(default=None),   # ex: 1534
+    item_id: UUID,  # ex: 6F9619FF-8B86-D011-B42D-00C04FC964FF
+    start_datetime: datetime | None = Body(
+        default=None
+    ),  # ex: 2023-06-30T07:07:47.369Z
+    end_datetime: datetime | None = Body(default=None),  # ex: 2023-06-30T07:07:47.369Z
+    repeat_at: time | None = Body(default=None),  # ex: 07:10:58.704
+    process_after: timedelta | None = Body(default=None),  # ex: 1534
 ):
     # 注意，函数内的参数有原生的数据类型，你可以，例如，执行正常的日期操作，如:
     start_process = start_datetime + process_after
@@ -81,10 +84,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

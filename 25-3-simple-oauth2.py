@@ -93,6 +93,7 @@ def fake_decode_token(token):
 # 该端点需要用户名和密码，并返回 Bearer 访问令牌。
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 # "说明"
 # 此处返回值为 Bearer 的响应头 WWW-Authenticate 也是规范的一部分。
 # 任何 401**UNAUTHORIZED**HTTP（错误）状态码都应返回 WWW-Authenticate 响应头。
@@ -189,10 +190,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

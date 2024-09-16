@@ -15,6 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # 但这并不实用。
 # 接下来，我们学习如何返回当前用户。
 
+
 # 创建用户模型
 # 首先，让我们来创建一个用户 Pydantic 模型。
 # 与使用 Pydantic 声明请求体的方式相同，我们可以在其他任何地方使用它：
@@ -32,10 +33,12 @@ def fake_decode_token(token):
         full_name="John Doe",
     )
 
+
 # 创建 get_current_user 依赖项。
 # 还记得依赖项支持子依赖项吗？
 # get_current_user 使用 oauth2_scheme 作为依赖项。
 # 与之前直接在路径操作中的做法相同，新的 get_current_user 依赖项从子依赖项 oauth2_scheme 中接收 str 类型的 token：
+
 
 # 获取用户
 # get_current_user 将使用我们创建的（伪）工具函数，该函数接收 str 类型的令牌并返回我们的 Pydantic User 模型
@@ -63,10 +66,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

@@ -12,6 +12,7 @@ app = FastAPI()
 # 因为此时请求体的编码为 multipart/form-data，不是 application/json。
 # 这不是 FastAPI 的问题，而是 HTTP 协议的规定。
 
+
 # 创建表单（Form）参数的方式与 Body 和 Query 一样：
 # 使用 Form 可以声明与 Body （及 Query、Path、Cookie）相同的元数据和验证
 # Form 是直接继承自 Body 的类。
@@ -24,7 +25,7 @@ app = FastAPI()
 async def login(
     username: str = Form(min_length=3),
     password: str = Form(min_length=3),
-    json: str = Body(), # 设定 Body 后不被报错，而是强制使用 Form 发送数据
+    json: str = Body(),  # 设定 Body 后不被报错，而是强制使用 Form 发送数据
 ):
     results = {"username": username, "json": json}
     return results
@@ -39,10 +40,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

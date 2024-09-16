@@ -9,7 +9,7 @@ app = FastAPI()
 
 class Image(BaseModel):
     # 除了普通的单一值类型（如 str、int、float 等）外，你还可以使用从 str 继承的更复杂的单一值类型。
-    url: HttpUrl    # 该字符串将被检查是否为有效的 URL
+    url: HttpUrl  # 该字符串将被检查是否为有效的 URL
     name: str
 
 
@@ -23,13 +23,13 @@ class Item(BaseModel):
     description: str | None = None
     price: float
     tax: float | None = None
-    tags: set[str] = set()              # 标签不应该重复,因此使用set,会自动去重
-    image: list[Image] | None = None    # 将子模型用作类型
+    tags: set[str] = set()  # 标签不应该重复,因此使用set,会自动去重
+    image: list[Image] | None = None  # 将子模型用作类型
 
 
 class Offer(BaseModel):
     name: str
-    items: list[Item]   # 深度嵌套模型
+    items: list[Item]  # 深度嵌套模型
 
 
 # 嵌套模型
@@ -68,10 +68,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

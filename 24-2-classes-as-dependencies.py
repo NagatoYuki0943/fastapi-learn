@@ -52,12 +52,12 @@ fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"
 #     - 一个 skip 查询参数，是 int 类型，默认值为 0。
 #     - 一个 limit 查询参数，是 int 类型，默认值为 100。
 
+
 class CommonQueryParams:
     def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):
         self.q = q
         self.skip = skip
         self.limit = limit
-
 
 
 # http://127.0.0.1:8000/docs
@@ -99,10 +99,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

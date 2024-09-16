@@ -32,7 +32,9 @@ class Item(BaseModel):
 # http://127.0.0.1:8000/docs
 @app.put("/items/{id}")
 def update_item(id: str, item: Item):
-    json_compatible_item_data = jsonable_encoder(item)  # 将Pydantic模型转换为dict，并将datetime转换为str。
+    json_compatible_item_data = jsonable_encoder(
+        item
+    )  # 将Pydantic模型转换为dict，并将datetime转换为str。
     fake_db[id] = json_compatible_item_data
     print(item)
     print(json_compatible_item_data)
@@ -47,10 +49,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

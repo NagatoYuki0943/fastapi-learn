@@ -51,6 +51,7 @@ async def read_item(item_id: str, q: str | None = None, short: bool = False):
         )
     return item
 
+
 # FastAPI 可以识别同时声明的多个路径参数和查询参数。
 # 而且声明查询参数的顺序并不重要。
 # http://127.0.0.1:8000/users/3/items/foo?short=1
@@ -78,7 +79,9 @@ async def read_user_item(
 # http://127.0.0.1:8000/items2/4?needy=what   正确
 # http://127.0.0.1:8000/items2/4?needy=what&skip=2&limit=20
 @app.get("/items2/{item_id}")
-async def read_item_with_needy(item_id: str, needy: str, skip: int = 0, limit: int | None = None):
+async def read_item_with_needy(
+    item_id: str, needy: str, skip: int = 0, limit: int | None = None
+):
     item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
     return item
 
@@ -92,10 +95,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

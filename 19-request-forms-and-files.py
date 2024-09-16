@@ -12,11 +12,12 @@ app = FastAPI()
 # 因为此时请求体的编码为 multipart/form-data，不是 application/json。
 # 这不是 FastAPI 的问题，而是 HTTP 协议的规定。
 
+
 # FastAPI 支持同时使用 File 和 Form 定义文件和表单字段。
 # http://127.0.0.1:8000/docs
 @app.post("/files/{itemsid}")
 async def create_file(
-    itemsid: int =Path(title="The ID of the item to set"),
+    itemsid: int = Path(title="The ID of the item to set"),
     query: str = Query(),
     file: bytes | None = File(default=None),
     fileb: UploadFile | None = File(default=None),
@@ -44,10 +45,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

@@ -1,7 +1,7 @@
 # https://fastapi.tiangolo.com/zh/tutorial/extra-models/
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel, EmailStr # pip install pydantic[email]
+from pydantic import BaseModel, EmailStr  # pip install pydantic[email]
 from enum import Enum
 
 
@@ -103,7 +103,7 @@ items = {
 # Union 或者 anyOf
 # 响应可以声明为两种类型的 Union 类型，即该响应可以是两种类型中的任意类型。
 # 在 OpenAPI 中可以使用 anyOf 定义。# http://127.0.0.1:8000/docs
-@app.get("/items/{item_id}", response_model= PlaneItem | CarItem)
+@app.get("/items/{item_id}", response_model=PlaneItem | CarItem)
 async def read_item(item_id: str):
     return items[item_id]
 
@@ -143,10 +143,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

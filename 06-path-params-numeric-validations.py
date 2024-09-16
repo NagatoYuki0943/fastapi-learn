@@ -25,10 +25,7 @@ async def read_items(
 # 对 FastAPI 来说这无关紧要。它将通过参数的名称、类型和默认值声明（Query、Path 等）来检测参数，而不在乎参数的顺序。
 # http://127.0.0.1:8000/items1/2?q=what
 @app.get("/items1/{item_id}")
-async def read_items1(
-    q: str,
-    item_id: int = Path(title="The ID of the item to get")
-):
+async def read_items1(q: str, item_id: int = Path(title="The ID of the item to get")):
     results = {"item_id": item_id}
     if q:
         results.update({"q": q})
@@ -40,7 +37,9 @@ async def read_items1(
 # 传递 * 作为函数的第一个参数。
 # Python 不会对该 * 做任何事情，但是它将知道之后的所有参数都应作为关键字参数（键值对），也被称为 kwargs，来调用。即使它们没有默认值。
 @app.get("/items2/{item_id}")
-async def read_items2(*, item_id: int = Path(title="The ID of the item to get"), q: str):
+async def read_items2(
+    *, item_id: int = Path(title="The ID of the item to get"), q: str
+):
     results = {"item_id": item_id}
     if q:
         results.update({"q": q})
@@ -94,10 +93,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象

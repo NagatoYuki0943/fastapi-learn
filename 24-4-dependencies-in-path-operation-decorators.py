@@ -16,6 +16,7 @@ app = FastAPI()
 # 依赖项错误和返回值
 # 路径装饰器依赖项也可以使用普通的依赖项*函数*。
 
+
 # 依赖项的需求项
 # 路径装饰器依赖项可以声明请求的需求项（比如响应头）或其他子依赖项：
 async def verify_token(x_token: str = Header()):
@@ -50,10 +51,10 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # 从环境变量中获取端口号，默认为 8000
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv("PORT", 8000))
 
     # 从环境变量中获取主机地址，默认为 0.0.0.0
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv("HOST", "0.0.0.0")
 
     file = Path(__file__).stem  # get file name without suffix
     # 不使用 reload = True 时可以直接传递 app 对象
