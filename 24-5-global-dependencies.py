@@ -1,6 +1,6 @@
 # https://fastapi.tiangolo.com/zh/tutorial/dependencies/global-dependencies/
 import uvicorn
-from fastapi import FastAPI, Depends, Depends, Header, HTTPException
+from fastapi import FastAPI, Depends, Header, HTTPException
 
 
 async def verify_token(x_token: str = Header()):

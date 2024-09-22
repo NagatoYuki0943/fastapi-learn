@@ -2,7 +2,7 @@
 # 接收上传文件，需预先安装 python-multipart
 # pip install python-multipart
 import uvicorn
-from fastapi import FastAPI, Path, File, Form, UploadFile, Body, Query
+from fastapi import FastAPI, Path, File, Form, UploadFile, Query
 
 
 app = FastAPI()

@@ -1,7 +1,7 @@
 # https://fastapi.tiangolo.com/zh/tutorial/dependencies/dependencies-with-yield/
 from typing import Annotated
 import uvicorn
-from fastapi import FastAPI, Depends, Depends, Header, HTTPException
+from fastapi import FastAPI, Depends, HTTPException
 
 
 app = FastAPI()

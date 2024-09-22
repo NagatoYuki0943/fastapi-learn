@@ -39,7 +39,8 @@ async def update_item(
 
 # 可以声明多个请求体参数
 # http://127.0.0.1:8000/docs
-async def update_item(item_id: int, item: Item, user: User):
+@app.put("/items1/{item_id}")
+async def update_item1(item_id: int, item: Item, user: User):
     results = {"item_id": item_id, "item": item, "user": user}
     return results
 

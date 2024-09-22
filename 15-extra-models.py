@@ -2,7 +2,6 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr  # pip install pydantic[email]
-from enum import Enum
 
 
 app = FastAPI()

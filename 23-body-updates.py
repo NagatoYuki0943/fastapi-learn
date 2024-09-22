@@ -3,7 +3,6 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from enum import Enum
 
 
 app = FastAPI()

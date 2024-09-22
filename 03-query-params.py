@@ -16,7 +16,7 @@ app = FastAPI()
 # http://127.0.0.1:8000/query                   有默认值,可以这样用
 # http://127.0.0.1:8000/query?skip=2&limit=20
 @app.get("/query")
-async def search(skip: int = 0, limit: int = 10):
+async def query(skip: int = 0, limit: int = 10):
     return {"skip": skip, "limit": limit}
 
 

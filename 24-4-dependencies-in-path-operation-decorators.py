@@ -1,6 +1,6 @@
 # https://fastapi.tiangolo.com/zh/tutorial/dependencies/dependencies-in-path-operation-decorators/
 import uvicorn
-from fastapi import FastAPI, Depends, Depends, Header, HTTPException
+from fastapi import FastAPI, Depends, Header, HTTPException
 
 
 app = FastAPI()
