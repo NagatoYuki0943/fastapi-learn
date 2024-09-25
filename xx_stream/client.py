@@ -8,7 +8,9 @@ URL = "http://localhost:8000/chat"
 
 def requests_chat(data: dict):
     stream = data["stream"]
-    response: requests.Response = requests.post(URL, json=data, stream=stream)
+    response: requests.Response = requests.post(
+        URL, json=data, timeout=60, stream=stream
+    )
     for chunk in response.iter_lines(
         chunk_size=8192, decode_unicode=False, delimiter=b"\n"
     ):
@@ -22,10 +24,10 @@ def httpx_sync_chat(data: dict):
     stream = data["stream"]
     with httpx.Client() as client:
         if not stream:
-            response: httpx.Response = client.post(URL, json=data)
+            response: httpx.Response = client.post(URL, json=data, timeout=60)
             yield response.json()
         else:
-            with client.stream("POST", URL, json=data) as response:
+            with client.stream("POST", URL, json=data, timeout=60) as response:
                 chunk: str
                 for chunk in response.iter_lines():
                     if chunk:
@@ -37,10 +39,10 @@ async def httpx_async_chat(data: dict):
     stream = data["stream"]
     async with httpx.AsyncClient() as client:
         if not stream:
-            response: httpx.Response = await client.post(URL, json=data)
+            response: httpx.Response = await client.post(URL, json=data, timeout=60)
             yield response.json()
         else:
-            async with client.stream("POST", URL, json=data) as response:
+            async with client.stream("POST", URL, json=data, timeout=60) as response:
                 chunk: str
                 async for chunk in response.aiter_lines():
                     if chunk:
