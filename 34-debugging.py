@@ -13,5 +13,6 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
+
     # 不使用 reload = True 时可以直接传递 app 对象
     uvicorn.run(app, host="0.0.0.0", port=8000)
