@@ -52,6 +52,9 @@ class Response(BaseModel):
         ],
     )
 
+    def __str__(self) -> str:
+        return self.model_dump_json()
+
 
 # 将请求体作为 JSON 读取
 # 在函数内部，你可以直接访问模型对象的所有属性
@@ -76,13 +79,16 @@ async def chat(query: Query):
         async def generate():
             for i in np.random.randint(0, 100, 10):
                 time.sleep(0.2)
-                yield Response(response=str(i)).model_dump_json() + "\n"
+                response = Response(response=str(i))
+                print(response)
+                yield response.model_dump_json() + "\n"
 
         return StreamingResponse(generate())
 
-    response = str(np.random.randint(0, 100, 10))
-
-    return Response(response=response)
+    number = str(np.random.randint(0, 100, 10))
+    response = Response(response=number)
+    print(response)
+    return response
 
 
 # run: uvicorn main:app --reload --port=8000
