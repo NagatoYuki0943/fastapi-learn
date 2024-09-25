@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/header-params/
-import uvicorn
 from typing import Annotated
 from fastapi import FastAPI, Header
 
@@ -49,6 +48,7 @@ async def read_items(x_token: Annotated[list[str] | None, Header()] = None):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

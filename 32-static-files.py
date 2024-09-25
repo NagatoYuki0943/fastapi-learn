@@ -8,7 +8,6 @@
 # "挂载" 表示在特定路径添加一个完全"独立的"应用，然后负责处理所有子路径。
 # 这与使用APIRouter不同，因为安装的应用程序是完全独立的。OpenAPI和来自你主应用的文档不会包含已挂载应用的任何东西等等。
 
-import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -29,6 +28,7 @@ async def root():
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

@@ -1,7 +1,6 @@
 # https://fastapi.tiangolo.com/zh/tutorial/request-files/
 # 接收上传文件，需预先安装 python-multipart
 # pip install python-multipart
-import uvicorn
 from fastapi import FastAPI, File, UploadFile
 
 
@@ -122,6 +121,7 @@ async def mulltifiles1(
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

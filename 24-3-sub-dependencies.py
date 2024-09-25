@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/dependencies/sub-dependencies/
-import uvicorn
 from fastapi import FastAPI, Depends, Cookie
 
 
@@ -48,6 +47,7 @@ async def read_query(query_or_default: str = Depends(query_or_cookie_extractor))
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

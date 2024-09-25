@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/response-model/
-import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr  # pip install pydantic[email]
 
@@ -136,6 +135,7 @@ async def read_item_name1(item_id: str):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

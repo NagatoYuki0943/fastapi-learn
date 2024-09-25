@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/body-fields/
-import uvicorn
 from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field
 # 注意，Field 是直接从 pydantic 导入的，而不是像其他的（Query，Path，Body 等）都从 fastapi 导入。
@@ -42,6 +41,7 @@ async def update_item(item_id: int, item: Item = Body(embed=True)):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

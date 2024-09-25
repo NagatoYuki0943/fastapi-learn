@@ -1,6 +1,5 @@
 # https://fastapi.tiangolo.com/zh/tutorial/body-multiple-params/
 from typing import Annotated
-import uvicorn
 from fastapi import FastAPI, Path, Body
 from pydantic import BaseModel
 
@@ -109,6 +108,7 @@ async def update_item4(
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

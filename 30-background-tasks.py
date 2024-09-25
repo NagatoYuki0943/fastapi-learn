@@ -6,7 +6,6 @@
 #     - 由于连接到电子邮件服务器并发送电子邮件往往很“慢”（几秒钟），您可以立即返回响应并在后台发送电子邮件通知。
 # - 处理数据：
 #     - 例如，假设您收到的文件必须经过一个缓慢的过程，您可以返回一个"Accepted"(HTTP 202)响应并在后台处理它。
-import uvicorn
 from typing import Annotated
 from fastapi import BackgroundTasks, Depends, FastAPI
 
@@ -68,6 +67,7 @@ async def send_notification2(
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

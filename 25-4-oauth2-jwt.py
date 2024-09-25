@@ -2,8 +2,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Literal
 
-
-import uvicorn
 from pydantic import BaseModel
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -276,6 +274,7 @@ async def read_own_items(
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

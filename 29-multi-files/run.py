@@ -12,4 +12,4 @@ if __name__ == "__main__":
     # 从环境变量中获取主机地址，默认为 0.0.0.0
     host = os.getenv("HOST", "0.0.0.0")
 
-    uvicorn.run(app=f"app.main:app", host=host, port=port, reload=True)
+    uvicorn.run(app="app.main:app", host=host, port=port, reload=True)

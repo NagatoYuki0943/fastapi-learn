@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/schema-extra-example/
-import uvicorn
 from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field
 from typing import Annotated
@@ -82,6 +81,7 @@ async def update_item2(
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

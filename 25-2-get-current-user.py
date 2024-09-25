@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/security/get-current-user/
-import uvicorn
 from fastapi import Depends, FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
@@ -64,6 +63,7 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

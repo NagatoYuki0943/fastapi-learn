@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/dependencies/
-import uvicorn
 from fastapi import FastAPI, Depends
 
 
@@ -86,6 +85,7 @@ async def read_users(commons: dict = Depends(common_parameters)):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

@@ -1,6 +1,5 @@
 # https://fastapi.tiangolo.com/zh/tutorial/dependencies/dependencies-with-yield/
 from typing import Annotated
-import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
 
 
@@ -172,6 +171,7 @@ def get_item2(item_id: str, username: Annotated[str, Depends(get_username)]):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

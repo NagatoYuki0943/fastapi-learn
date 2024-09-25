@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/handling-errors/
-import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
@@ -111,6 +110,7 @@ async def read_item1(item_id: int):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

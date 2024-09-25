@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/extra-data-types/
-import uvicorn
 from fastapi import FastAPI, Body
 from datetime import datetime, time, timedelta
 from uuid import UUID
@@ -82,6 +81,7 @@ async def read_items(
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

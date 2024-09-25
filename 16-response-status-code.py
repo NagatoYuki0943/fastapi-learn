@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/response-status-code/
-import uvicorn
 from fastapi import FastAPI, status
 
 
@@ -51,6 +50,7 @@ async def create_item1(name: str):
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))

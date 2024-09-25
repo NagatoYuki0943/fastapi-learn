@@ -1,5 +1,4 @@
 # https://fastapi.tiangolo.com/zh/tutorial/security/simple-oauth2/
-import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -188,6 +187,7 @@ async def read_users_me(current_user: UserInDB = Depends(get_current_active_user
 if __name__ == "__main__":
     import os
     from pathlib import Path
+    import uvicorn
 
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))
