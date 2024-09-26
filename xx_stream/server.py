@@ -16,7 +16,7 @@ class Query(BaseModel):
         description="List of dictionaries containing the input text and the corresponding user id",
         examples=[[{"role": "user", "content": "你是谁?"}]],
     )
-    max_new_tokens: int = Field(
+    max_tokens: int = Field(
         1024, ge=1, le=2048, description="Maximum number of new tokens to generate"
     )
     temperature: float = Field(
@@ -81,7 +81,8 @@ async def chat(query: Query):
                 time.sleep(0.2)
                 response = Response(response=str(i))
                 print(response)
-                yield response.model_dump_json() + "\n"
+                # openai api returns \n\n as a delimiter for messages
+                yield response.model_dump_json() + "\n\n"
 
         return StreamingResponse(generate())
 
