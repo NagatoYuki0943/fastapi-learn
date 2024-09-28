@@ -46,8 +46,8 @@ class Query(BaseModel):
 
 # -------------------- 非流式响应模型 --------------------#
 class ChatCompletionMessage(BaseModel):
-    content: str = Field(
-        "",
+    content: str | None = Field(
+        None,
         description="The input text of the user or assistant",
         examples=["你是谁?"],
     )
@@ -136,8 +136,8 @@ class ChatCompletion(BaseModel):
         None,
         description="The timestamp when the conversation was created",
     )
-    model: str = Field(
-        "",
+    model: str | None = Field(
+        None,
         description="The model used for generating the response",
         examples=["gpt4o", "gpt4"],
     )
@@ -212,8 +212,8 @@ class ChatCompletionChunk(BaseModel):
         None,
         description="The timestamp when the conversation was created",
     )
-    model: str = Field(
-        "",
+    model: str | None = Field(
+        None,
         description="The model used for generating the response",
         examples=["gpt4o", "gpt4"],
     )
@@ -296,6 +296,27 @@ async def chat(query: Query):
                 print(response)
                 # openai api returns \n\n as a delimiter for messages
                 yield f"data: {response.model_dump_json()}\n\n"
+
+            response = ChatCompletionChunk(
+                id=id,
+                choices=[
+                    ChatCompletionChunkChoice(
+                        index=0,
+                        finish_reason="stop",
+                        delta=ChoiceDelta(),
+                    )
+                ],
+                created=time.time(),
+                usage=CompletionUsage(
+                    prompt_tokens=content_len,
+                    completion_tokens=len(number),
+                    total_tokens=content_len + len(number),
+                ),
+            )
+            print(response)
+            # openai api returns \n\n as a delimiter for messages
+            yield f"data: {response.model_dump_json()}\n\n"
+
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(generate())
