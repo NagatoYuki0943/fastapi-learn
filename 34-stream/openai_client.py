@@ -8,8 +8,8 @@ import json
 
 
 URL = "http://localhost:8000/v1/chat/completions"
-URL = "https://api.moonshot.cn/v1/chat/completions"
-URL = "https://api.siliconflow.cn/v1/chat/completions"
+# URL = "https://api.moonshot.cn/v1/chat/completions"
+# URL = "https://api.siliconflow.cn/v1/chat/completions"
 
 
 """
@@ -25,9 +25,9 @@ api_key = os.getenv("API_KEY", "I AM AN API_KEY")
 
 # https://www.perplexity.ai/search/xia-mian-shi-yi-ge-http-qing-q-dxXvXy_8TbaGcy3n_EJ6gA
 headers = {
-    "accept": "application/json", # Accept头部用于指定客户端能够接受的响应内容类型
-    "content-type": "application/json", # Content-Type头部指定了请求体的媒体类型
-    "Authorization": f"Bearer {api_key}", # Authorization头部用于发送客户端的身份验证凭据, 使用了Bearer令牌认证方式,将API密钥作为访问令牌发送
+    "accept": "application/json",  # Accept头部用于指定客户端能够接受的响应内容类型
+    "content-type": "application/json",  # Content-Type头部指定了请求体的媒体类型
+    "Authorization": f"Bearer {api_key}",  # Authorization头部用于发送客户端的身份验证凭据, 使用了Bearer令牌认证方式,将API密钥作为访问令牌发送
 }
 
 
@@ -47,10 +47,11 @@ def requests_chat(data: dict):
         ):
             if chunk:
                 decoded: str = chunk.decode("utf-8")
-                if decoded == "data: [DONE]":
-                    continue
-                elif decoded[:6] == "data: ":
-                    yield json.loads(decoded[6:])
+                if decoded.startswith("data: "):
+                    decoded = decoded[6:]
+                    if decoded.strip() == "[DONE]":
+                        continue
+                    yield json.loads(decoded)
 
 
 # help: https://www.perplexity.ai/search/wo-shi-yong-requests-shi-xian-q_g712n3SBObB5xH_2fnMQ
@@ -69,11 +70,11 @@ def httpx_sync_chat(data: dict):
             ) as response:
                 chunk: str
                 for chunk in response.iter_lines():
-                    if chunk:
-                        if chunk == "data: [DONE]":
+                    if chunk and chunk.startswith("data: "):
+                        chunk = chunk[6:]
+                        if chunk.strip() == "[DONE]":
                             continue
-                        elif chunk[:6] == "data: ":
-                            yield json.loads(chunk[6:])
+                        yield json.loads(chunk)
 
 
 async def httpx_async_chat(data: dict):
@@ -91,11 +92,11 @@ async def httpx_async_chat(data: dict):
             ) as response:
                 chunk: str
                 async for chunk in response.aiter_lines():
-                    if chunk:
-                        if chunk == "data: [DONE]":
+                    if chunk and chunk.startswith("data: "):
+                        chunk = chunk[6:]
+                        if chunk.strip() == "[DONE]":
                             continue
-                        elif chunk[:6] == "data: ":
-                            yield json.loads(chunk[6:])
+                        yield json.loads(chunk)
 
 
 # https://www.perplexity.ai/search/wo-shi-yong-aiohttpshi-xian-mo-6J27VL0aQsGNCykznLPlMw
