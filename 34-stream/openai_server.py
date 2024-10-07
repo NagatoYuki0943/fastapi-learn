@@ -51,6 +51,12 @@ class ChatCompletionMessage(BaseModel):
         description="The input text of the user or assistant",
         examples=["你是谁?"],
     )
+    # 允许添加额外字段
+    reference: list[str] | None = Field(
+        None,
+        description="The reference text(s) used for generating the response",
+        examples=[["book1", "book2"]],
+    )
     role: str = Field(
         None,
         description="The role of the user or assistant",
