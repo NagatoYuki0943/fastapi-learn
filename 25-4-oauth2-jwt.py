@@ -121,12 +121,12 @@ app = FastAPI()
 # 接下来，创建三个工具函数，其中一个函数用于哈希用户的密码。
 # 第一个函数用于校验接收的密码是否匹配存储的哈希值。
 # 第三个函数用于身份验证，并返回用户。
-def verify_password(plain_password, hashed_password) -> bool:
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     # return pwd_context.verify(plain_password, hashed_password)
     return bcrypt.checkpw(plain_password.encode("utf8"), hashed_password.encode("utf8"))
 
 
-def get_password_hash(password) -> str:
+def get_password_hash(password: str) -> str:
     # return pwd_context.hash(password)
     return bcrypt.hashpw(password.encode("utf8"), bcrypt.gensalt()).decode("utf8")
 
