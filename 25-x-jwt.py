@@ -25,7 +25,7 @@ print(f"expire: {expire}")
 # expire: 2024-09-08 10:10:46.529348+00:00
 
 # 编码的数据, sub 中存储需要的数据
-to_encode = {"sub": "johndoe", "exp": expire}
+to_encode = {"sub": "johndoe", "login_time": now.timestamp(), "exp": expire}
 
 access_token = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
 print(f"access_token: {access_token}")
@@ -36,15 +36,19 @@ try:
     # 解码 JWT 令牌
     payload: dict = jwt.decode(access_token, SECRET_KEY, [ALGORITHM])
     print(f"payload: {payload}")
-    # payload: {'sub': 'johndoe', 'exp': 1725790246}
+    # payload: {'sub': 'johndoe', 'login_time': 1728817601.134391, 'exp': 1728819401}
 
-    username: str = payload.get("sub")
-    print(f"username: {username}")
-    # username: johndoe
+    sub: str = payload.get("sub")
+    print(f"sub: {sub}")
+    # sub: johndoe
 
-    datetime_obj: datetime = datetime.fromtimestamp(payload.get("exp"), tz=timezone.utc)
-    print(f"datetime_obj: {datetime_obj}")
-    # datetime_obj: 2024-09-08 10:10:46+00:00
+    login_time: datetime = datetime.fromtimestamp(payload.get("login_time"), tz=timezone.utc)
+    print(f"login_time: {login_time}")
+    # login_time: 2024-10-13 11:06:41.134391+00:00
+
+    exp_time: datetime = datetime.fromtimestamp(payload.get("exp"), tz=timezone.utc)
+    print(f"exp_time: {exp_time}")
+    # exp_time: 2024-10-13 11:36:41+00:00
 
 # JWT 令牌过期后会抛出 jwt.exceptions.ExpiredSignatureError 异常
 except ExpiredSignatureError:
