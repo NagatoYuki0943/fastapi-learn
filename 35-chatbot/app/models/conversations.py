@@ -6,6 +6,7 @@ from ..core import (
     string,
     default_zero_int,
     json_type,
+    timestamp,
     timestamp_default_now,
     timestamp_update_now,
 )
@@ -28,6 +29,7 @@ class ConversationDB(Base):
     status: Mapped[string]
     created_at: Mapped[timestamp_default_now]
     updated_at: Mapped[timestamp_update_now]
+    deleted_at: Mapped[timestamp]
 
     # 关联字段
     user: Mapped["UserDB"] = relationship("UserDB", back_populates="conversations")

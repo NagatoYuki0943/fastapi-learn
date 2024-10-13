@@ -5,6 +5,7 @@ from ..core import (
     required_unique_string,
     string,
     text,
+    timestamp,
     timestamp_default_now,
     timestamp_update_now,
 )
@@ -21,6 +22,7 @@ class ModelDB(Base):
     status: Mapped[string]
     created_at: Mapped[timestamp_default_now]
     updated_at: Mapped[timestamp_update_now]
+    deleted_at: Mapped[timestamp]
 
     # 关联字段
     conversations: Mapped[list[ConversationDB]] = relationship(

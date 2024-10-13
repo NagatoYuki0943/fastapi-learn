@@ -1,3 +1,4 @@
+import datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, EmailStr
@@ -25,7 +26,7 @@ class Token(BaseModel):
 
 
 class UserSchema(BaseModel):
-    username: str = Field(..., min_length=3, max_length=50, example="johndoe")
+    username: str = Field(..., min_length=3, max_length=256, example="johndoe")
     email: EmailStr
     phone: str | None = Field(None, example="")
 
@@ -34,11 +35,14 @@ class UserSchema(BaseModel):
 
 
 class UserOutSchema(UserSchema):
-    password: str = Field(..., min_length=8, max_length=100, example="password123")
+    password: str = Field(..., min_length=6, max_length=256, example="123456")
 
 
 class UserInDBSchema(UserSchema):
     hashed_password: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    deleted_at: datetime.datetime | None = None
 
 
 router = APIRouter()
@@ -53,11 +57,33 @@ router = APIRouter()
 def get_user(email: str) -> UserInDBSchema | None:
     user = session.query(UserDB).filter(UserDB.email==email).first()
     if user:
+        # 更新登录时间
+        user.last_login_at = datetime.datetime.now()
+        session.commit()
         return UserInDBSchema(
             username = user.username,
             email = user.email,
             phone = user.phone,
             hashed_password = user.password,
+            created_at = user.created_at,
+            updated_at = user.updated_at,
+            deleted_at = user.deleted_at,
+        )
+
+
+def get_activate_user(email: str) -> UserInDBSchema | None:
+    user = get_user(email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+    elif user.deleted_at is None:
+        return user
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Inactive user",
         )
 
 
@@ -65,15 +91,18 @@ def get_user(email: str) -> UserInDBSchema | None:
 def authenticate_user(
     username: str,
     password: str,
-) -> UserInDBSchema | Literal[False]:
-    user = get_user(username)
-    # 用户是否存在
-    if not user:
-        return False
-    # 验证密码是否正确
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
+) -> UserInDBSchema | None:
+    user = get_activate_user(username)
+
+    # 密码是否正确
+    if verify_password(password, user.hashed_password):
+        return user
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 @router.post("/register", response_model=UserSchema)
@@ -107,12 +136,6 @@ async def login(
 ) -> Token:
     # 验证用户名和密码
     user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
     # 创建生成新的 JWT 访问令牌
     access_token = create_access_token(data={"sub": user.username})
@@ -120,7 +143,7 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
-async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> UserInDBSchema:
+async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> str | None:
     sub = verify_access_token(token)
     if sub is not None:
         return sub

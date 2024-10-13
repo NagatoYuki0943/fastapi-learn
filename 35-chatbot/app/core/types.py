@@ -1,5 +1,6 @@
 import datetime
-from sqlalchemy import Integer, String, Text, JSON, func
+from uuid import UUID as _UUID
+from sqlalchemy import Integer, String, Text, JSON, UUID, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import mapped_column
 from typing import Annotated
@@ -8,6 +9,16 @@ from .database import database_type
 
 
 int_pk = Annotated[int, mapped_column(primary_key=True, comment="主键")]
+uuid_type = Annotated[
+    _UUID,
+    mapped_column(
+        UUID,
+        unique=True,
+        nullable=False,
+        server_default=func.gen_random_uuid(),
+        comment="UUID主键",
+    ),
+]
 string = Annotated[str, mapped_column(String(256), unique=False, nullable=True)]
 text = Annotated[str, mapped_column(Text, nullable=True)]
 required_string = Annotated[
@@ -23,6 +34,13 @@ json_type = Annotated[
         JSONB if database_type == "postgresql" else JSON,
         nullable=True,
         comment="JSON格式",
+    ),
+]
+timestamp = Annotated[
+    datetime.datetime,
+    mapped_column(
+        nullable=True,
+        comment="时间戳",
     ),
 ]
 timestamp_default_now = Annotated[
