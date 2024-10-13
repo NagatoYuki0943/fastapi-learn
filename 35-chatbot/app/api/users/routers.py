@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, Literal
+from typing import Annotated
 
 from pydantic import BaseModel, Field, EmailStr
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,6 +16,15 @@ from ...dependencies import (
 )
 
 
+router = APIRouter()
+# 可以使用它来声明*路径操作*。
+# 使用方式与 FastAPI 类相同：
+# 你可以将 APIRouter 视为一个「迷你 FastAPI」类。
+# 所有相同的选项都得到支持。
+# 所有相同的 parameters、responses、dependencies、tags 等等。
+
+
+# 创建数据库会话
 session = Session()
 
 
@@ -39,35 +48,32 @@ class UserOutSchema(UserSchema):
 
 
 class UserInDBSchema(UserSchema):
+    id: int
     hashed_password: str
+    last_login_at: datetime.datetime | None = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
     deleted_at: datetime.datetime | None = None
 
 
-router = APIRouter()
-# 可以使用它来声明*路径操作*。
-# 使用方式与 FastAPI 类相同：
-# 你可以将 APIRouter 视为一个「迷你 FastAPI」类。
-# 所有相同的选项都得到支持。
-# 所有相同的 parameters、responses、dependencies、tags 等等。
-
-
 # 从数据库中获取用户。
 def get_user(email: str) -> UserInDBSchema | None:
-    user = session.query(UserDB).filter(UserDB.email==email).first()
+    user = session.query(UserDB).filter(UserDB.email == email).first()
     if user:
         # 更新登录时间
         user.last_login_at = datetime.datetime.now()
         session.commit()
+        # return UserInDBSchema.from_orm(user)
         return UserInDBSchema(
-            username = user.username,
-            email = user.email,
-            phone = user.phone,
-            hashed_password = user.password,
-            created_at = user.created_at,
-            updated_at = user.updated_at,
-            deleted_at = user.deleted_at,
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            phone=user.phone,
+            hashed_password=user.password,
+            last_login_at=user.last_login_at,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            deleted_at=user.deleted_at,
         )
 
 
@@ -138,13 +144,14 @@ async def login(
     user = authenticate_user(form_data.username, form_data.password)
 
     # 创建生成新的 JWT 访问令牌
-    access_token = create_access_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": user.id})
     # 返回 JWT 访问令牌的 Pydantic 模型
     return Token(access_token=access_token, token_type="bearer")
 
 
 async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> str | None:
     sub = verify_access_token(token)
+    print(f"{sub = }")
     if sub is not None:
         return sub
 

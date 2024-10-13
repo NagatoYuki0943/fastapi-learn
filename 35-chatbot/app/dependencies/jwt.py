@@ -39,17 +39,17 @@ expired_exception = HTTPException(
 
 
 # 创建生成新的访问令牌的工具函数。
-def create_access_token(data: dict, expires_times: int | None = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     # 防止修改原数据
     to_encode = data.copy()
+    now = datetime.now()
     # 添加过期时间
-    if expires_times:
-        expires_delta = timedelta(minutes=expires_times)
-        expire = datetime.now(timezone.utc) + expires_delta
+    if expires_delta:
+        expire = now + expires_delta
     else:
         # 默认过期时间为 15 分钟
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+        expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"created_at": now.timestamp(), "exp": expire.timestamp()})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
     return encoded_jwt
 

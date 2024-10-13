@@ -24,8 +24,8 @@ class ConversationDB(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("chatbot_users.id"))
     model_id: Mapped[int] = mapped_column(ForeignKey("chatbot_models.id"))
     messages: Mapped[json_type]
-    input_tokens_sum: Mapped[default_zero_int]
-    output_tokens_sum: Mapped[default_zero_int]
+    input_tokens: Mapped[default_zero_int]
+    output_tokens: Mapped[default_zero_int]
     status: Mapped[string]
     created_at: Mapped[timestamp_default_now]
     updated_at: Mapped[timestamp_update_now]
