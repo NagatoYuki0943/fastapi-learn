@@ -51,7 +51,7 @@ fake_users_db = {
         "username": "johndoe",
         "full_name": "John Doe",
         "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$VQoTe7XFivUfmUCLSpv.recCY2UrseBxdWVW1dMz1RfxVPyL1SbJW", # secret
+        "hashed_password": "$2b$12$VQoTe7XFivUfmUCLSpv.recCY2UrseBxdWVW1dMz1RfxVPyL1SbJW",  # secret
         "disabled": False,
     }
 }
@@ -86,7 +86,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     else:
         # 默认过期时间为 15 分钟
         expire = now + timedelta(minutes=15)
-    to_encode.update({"login_time": now.timestamp(), "exp": expire.timestamp()})
+    to_encode.update({"created_at": now.timestamp(), "exp": expire.timestamp()})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
     return encoded_jwt
 
