@@ -4,6 +4,7 @@ from ..core import (
     Base,
     int_pk,
     string,
+    text,
     default_zero_int,
     json_type,
     timestamp,
@@ -23,7 +24,9 @@ class ConversationDB(Base):
     id: Mapped[int_pk]
     user_id: Mapped[int] = mapped_column(ForeignKey("chatbot_users.id"))
     model_id: Mapped[int] = mapped_column(ForeignKey("chatbot_models.id"))
+    title: Mapped[string]
     messages: Mapped[json_type]
+    desc: Mapped[text]
     input_tokens: Mapped[default_zero_int]
     output_tokens: Mapped[default_zero_int]
     status: Mapped[string]
@@ -36,4 +39,4 @@ class ConversationDB(Base):
     model: Mapped["ModelDB"] = relationship("ModelDB", back_populates="conversations")
 
     def __repr__(self):
-        return f"<Conversation(id={self.id}, user_id={self.user_id}, model_id={self.model_id}, messages={self.messages}, input_tokens_sum={self.input_tokens_sum}, output_tokens_sum={self.output_tokens_sum}, status='{self.status}')>"
+        return f"<Conversation(id={self.id}, user_id={self.user_id}, model_id={self.model_id}, title='{self.title}', messages={self.messages}, desc='{self.desc}', input_tokens={self.input_tokens}, output_tokens={self.output_tokens}, status='{self.status}')>"

@@ -1,6 +1,6 @@
 # https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/api_server.py
 import time
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import numpy as np
@@ -32,8 +32,8 @@ session = Session()
 
 
 # 与声明查询参数一样，包含默认值的模型属性是可选的，否则就是必选的。默认值为 None 的模型属性也是可选的。
-class Query(BaseModel):
-    model: str | None  = Field(
+class ChatRequest(BaseModel):
+    model: str | None = Field(
         None,
         description="The model used for generating the response",
         examples=["gpt4o", "gpt4"],
@@ -77,7 +77,9 @@ class Query(BaseModel):
     conversation_id: int | None = Field(
         None,
         description="The id of the conversation",
-        examples=[123456,],
+        examples=[
+            123456,
+        ],
     )
 
 
@@ -287,7 +289,7 @@ class ChatCompletionChunk(BaseModel):
 # 在函数内部，你可以直接访问模型对象的所有属性
 # http://127.0.0.1:8000/docs
 @router.post("/v1/chat/completions", response_model=ChatCompletion)
-async def chat(query: Query, token: Annotated[str, Depends(oauth2_scheme)]):
+async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme)]):
     user_id = int(verify_access_token(token))
     print(user_id)
 
@@ -295,22 +297,22 @@ async def chat(query: Query, token: Annotated[str, Depends(oauth2_scheme)]):
     user: UserDB = session.query(UserDB).get(user_id)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid user")
-    model_name = query.model or DEFAULT_MODEL
-    model = session.query(ModelDB).filter(ModelDB.model_name==model_name).first()
+    model_name = request.model or DEFAULT_MODEL
+    model = session.query(ModelDB).filter(ModelDB.model_name == model_name).first()
     if not model:
         model = ModelDB(model_name=model_name)
         session.add(model)
         session.commit()
 
-    print(query)
-    if not query.messages or len(query.messages) == 0:
+    print(request)
+    if not request.messages or len(request.messages) == 0:
         raise HTTPException(status_code=400, detail="No messages provided")
 
-    role = query.messages[-1].get("role", "")
+    role = request.messages[-1].get("role", "")
     if role not in ["user", "assistant"]:
         raise HTTPException(status_code=400, detail="Invalid role")
 
-    content = query.messages[-1].get("content", "")
+    content = request.messages[-1].get("content", "")
     if not content:
         raise HTTPException(status_code=400, detail="content is empty")
     content_len = len(content)
@@ -321,7 +323,7 @@ async def chat(query: Query, token: Annotated[str, Depends(oauth2_scheme)]):
     id = random.getrandbits(64)
 
     # 流式响应
-    if query.stream:
+    if request.stream:
 
         async def generate():
             for i, n in enumerate(number):
@@ -395,13 +397,12 @@ async def chat(query: Query, token: Annotated[str, Depends(oauth2_scheme)]):
     )
     print(response)
 
-
     # 保存到数据库
-    messages = query.messages
+    messages = request.messages
     input_tokens = sum(len(message["content"]) for message in messages)
     output_tokens = len(number)
     messages.append({"role": "assistant", "content": number})
-    conversation_id = query.conversation_id
+    conversation_id = request.conversation_id
     conversation: ConversationDB = session.query(ConversationDB).get(conversation_id)
     if conversation:
         conversation.messages = messages
@@ -423,30 +424,41 @@ async def chat(query: Query, token: Annotated[str, Depends(oauth2_scheme)]):
     return response
 
 
-
 # 与声明查询参数一样，包含默认值的模型属性是可选的，否则就是必选的。默认值为 None 的模型属性也是可选的。
 class Messages(BaseModel):
     id: int = Field(
         None,
         description="The id of the conversation",
     )
-    user_id: int = Field(
+    user_id: int | None = Field(
         None,
         description="The id of the user",
     )
-    model_name: str = Field(
+    model: str | None = Field(
         None,
         description="The name of the model",
     )
-    messages: list[dict[str, str]] = Field(
+    title: str | None = Field(
+        None,
+        description="The title of the conversation",
+    )
+    messages: list[dict[str, str]] | None = Field(
         None,
         description="List of dictionaries containing the input text and the corresponding user id",
         examples=[[{"role": "user", "content": "你是谁?"}]],
     )
+    desc: str | None = Field(
+        None,
+        description="The description of the conversation",
+    )
 
 
-@router.post("/history", response_model=list[Messages])
-async def history(token: Annotated[str, Depends(oauth2_scheme)]):
+@router.get("/history", response_model=list[Messages])
+async def history(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=10, ge=1, le=100),
+):
     user_id = int(verify_access_token(token))
     print(user_id)
 
@@ -455,17 +467,29 @@ async def history(token: Annotated[str, Depends(oauth2_scheme)]):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid user")
 
-    conversations: list[ConversationDB] = user.conversations
+    # conversations: list[ConversationDB] = user.conversations
+    conversations: list[ConversationDB] = (
+        session.query(ConversationDB)
+        .filter(ConversationDB.user_id == user_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
     if not conversations:
         return []
 
     responses = []
     for conversation in conversations:
-        responses.append(Messages(
-            id=conversation.id,
-            user_id=user_id,
-            messages=conversation.messages,
-            model_name=conversation.model.model_name,
-        ))
+        responses.append(
+            Messages(
+                id=conversation.id,
+                user_id=user_id,
+                title=conversation.title,
+                messages=conversation.messages,
+                desc=conversation.desc,
+                model=conversation.model.model_name,
+            )
+        )
 
     return responses
