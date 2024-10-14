@@ -10,8 +10,8 @@ app = FastAPI()
 
 
 # 与声明查询参数一样，包含默认值的模型属性是可选的，否则就是必选的。默认值为 None 的模型属性也是可选的。
-class Query(BaseModel):
-    model: str | None  = Field(
+class ChatRequest(BaseModel):
+    model: str | None = Field(
         None,
         description="The model used for generating the response",
         examples=["gpt4o", "gpt4"],
@@ -71,21 +71,21 @@ class Response(BaseModel):
 # 在函数内部，你可以直接访问模型对象的所有属性
 # http://127.0.0.1:8000/docs
 @app.post("/chat", response_model=Response)
-async def chat(query: Query):
-    print(query)
+async def chat(request: ChatRequest):
+    print(request)
 
-    if not query.messages or len(query.messages) == 0:
+    if not request.messages or len(request.messages) == 0:
         raise HTTPException(status_code=400, detail="No messages provided")
 
-    role = query.messages[-1].get("role", "")
+    role = request.messages[-1].get("role", "")
     if role not in ["user", "assistant"]:
         raise HTTPException(status_code=400, detail="Invalid role")
 
-    content = query.messages[-1].get("content", "")
+    content = request.messages[-1].get("content", "")
     if not content:
         raise HTTPException(status_code=400, detail="content is empty")
 
-    if query.stream:
+    if request.stream:
 
         async def generate():
             for i in np.random.randint(0, 100, 10):
