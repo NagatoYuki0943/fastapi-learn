@@ -180,7 +180,7 @@ async def read_users_me(current_user: UserInDB = Depends(get_current_active_user
 # 这就是 Bearer Token 身份验证的过程。
 
 
-# run: uvicorn main:app --reload --port=8000
+# run: uvicorn main:app --reload --host=0.0.0.0 --port=8000
 #   main: main.py 文件(一个 Python「模块」)。
 #   app: 在 main.py 文件中通过 app = FastAPI() 创建的对象。
 #   --reload: 让服务器在更新代码后重新启动。仅在开发时使用该选项。

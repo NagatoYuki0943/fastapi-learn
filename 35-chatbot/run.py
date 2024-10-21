@@ -4,7 +4,7 @@ import uvicorn
 import os
 
 
-# uvicorn app.main:app --reload
+# uvicorn app.main:app --reload --host=0.0.0.0 --port=8000
 if __name__ == "__main__":
     # 从环境变量中获取端口号，默认为 8000
     port = int(os.getenv("PORT", 8000))
