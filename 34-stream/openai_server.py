@@ -282,7 +282,7 @@ async def chat(request: ChatRequest):
     number = str(np.random.randint(0, 100, 10))
     print(f"number: {number}")
 
-    id = random.getrandbits(64)
+    session_id = random.getrandbits(64)
 
     # 流式响应
     if request.stream:
@@ -291,7 +291,7 @@ async def chat(request: ChatRequest):
             for i, n in enumerate(number):
                 time.sleep(0.2)
                 response = ChatCompletionChunk(
-                    id=id,
+                    id=session_id,
                     choices=[
                         ChatCompletionChunkChoice(
                             index=0,
@@ -314,7 +314,7 @@ async def chat(request: ChatRequest):
                 yield f"data: {response.model_dump_json()}\n\n"
 
             response = ChatCompletionChunk(
-                id=id,
+                id=session_id,
                 choices=[
                     ChatCompletionChunkChoice(
                         index=0,
@@ -339,7 +339,7 @@ async def chat(request: ChatRequest):
 
     # 非流式响应
     response = ChatCompletion(
-        id=id,
+        id=session_id,
         choices=[
             ChatCompletionChoice(
                 index=0,
