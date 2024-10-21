@@ -1,8 +1,5 @@
-from .database import (
-    database_type,
-    engine,
-    Session,
-    Base,
+from .database import database_type, engine, Session, Base
+from .types import (
     int_pk,
     uuid_type,
     string,
