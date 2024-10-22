@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from ..core import (
+from ..core.database import (
     Base,
     int_pk,
     string,

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, relationship
-from ..core import (
+from ..core.database import (
     Base,
     int_pk,
     required_unique_string,
