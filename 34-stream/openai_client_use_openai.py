@@ -28,7 +28,7 @@ client = OpenAI(
 messages = [{"role": "user", "content": "hello"}]
 
 
-response: ChatCompletion = client.chat.completions.create(
+chat_completions: ChatCompletion = client.chat.completions.create(
     messages=messages,
     model="moonshot-v1-8k",
     # model="internlm/internlm2_5-7b-chat",
@@ -40,7 +40,7 @@ response: ChatCompletion = client.chat.completions.create(
     temperature=0.8,
     top_p=0.8,
 )
-print(response)
+print(chat_completions)
 # ChatCompletion(
 #     id=15246409379408058547,
 #     choices=[
@@ -66,7 +66,7 @@ print(response)
 # )
 
 
-for choice in response.choices:
+for choice in chat_completions.choices:
     print(choice)
     # Choice(
     #     finish_reason='stop',
@@ -84,7 +84,7 @@ for choice in response.choices:
     # [ 2 84 42 60 92  0 53 58 44 24]
 
 
-response: Stream = client.chat.completions.create(
+chat_completions: Stream = client.chat.completions.create(
     messages=messages,
     # model="moonshot-v1-8k",
     model="internlm/internlm2_5-7b-chat",
@@ -96,13 +96,13 @@ response: Stream = client.chat.completions.create(
     temperature=0.8,
     top_p=0.8,
 )
-print(response)
+print(chat_completions)
 # <openai.Stream object at 0x000002294D483AF0>
 
 
 responses = []
 # print("response: ", end="", flush=True)
-for idx, chunk in enumerate(response):
+for idx, chunk in enumerate(chat_completions):
     print(chunk)
     # ChatCompletionChunk(
     #     id=15531134710371620732,
