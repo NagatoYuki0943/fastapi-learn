@@ -290,7 +290,7 @@ async def chat(request: ChatRequest):
         async def generate():
             for i, n in enumerate(number):
                 time.sleep(0.2)
-                response = ChatCompletionChunk(
+                chat_completion_chunk = ChatCompletionChunk(
                     id=session_id,
                     choices=[
                         ChatCompletionChunkChoice(
@@ -309,11 +309,11 @@ async def chat(request: ChatRequest):
                         total_tokens=content_len + i + 1,
                     ),
                 )
-                print(response)
+                print(chat_completion_chunk)
                 # openai api returns \n\n as a delimiter for messages
-                yield f"data: {response.model_dump_json()}\n\n"
+                yield f"data: {chat_completion_chunk.model_dump_json()}\n\n"
 
-            response = ChatCompletionChunk(
+            chat_completion_chunk = ChatCompletionChunk(
                 id=session_id,
                 choices=[
                     ChatCompletionChunkChoice(
@@ -329,16 +329,16 @@ async def chat(request: ChatRequest):
                     total_tokens=content_len + len(number),
                 ),
             )
-            print(response)
+            print(chat_completion_chunk)
             # openai api returns \n\n as a delimiter for messages
-            yield f"data: {response.model_dump_json()}\n\n"
+            yield f"data: {chat_completion_chunk.model_dump_json()}\n\n"
 
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(generate())
 
     # 非流式响应
-    response = ChatCompletion(
+    chat_completion = ChatCompletion(
         id=session_id,
         choices=[
             ChatCompletionChoice(
@@ -357,8 +357,8 @@ async def chat(request: ChatRequest):
             total_tokens=content_len + len(number),
         ),
     )
-    print(response)
-    return response
+    print(chat_completion)
+    return chat_completion
 
 
 # run: uvicorn main:app --reload --host=0.0.0.0 --port=8000
