@@ -95,8 +95,17 @@ class ChatRequest(BaseModel):
     )
 
 
-def save_conversation(user: UserDB, model: ModelDB, messages: list[dict[str, str]], input_tokens: int, output_tokens: int, conversation_id=None):
-    conversation = session.query(ConversationDB).get(conversation_id) if conversation_id else None
+def save_conversation(
+    user: UserDB,
+    model: ModelDB,
+    messages: list[dict[str, str]],
+    input_tokens: int,
+    output_tokens: int,
+    conversation_id=None,
+):
+    conversation = (
+        session.query(ConversationDB).get(conversation_id) if conversation_id else None
+    )
     if conversation:
         conversation.messages = messages
         conversation.model = model
@@ -160,6 +169,7 @@ async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme
 
     # 流式响应
     if request.stream:
+
         async def generate():
             full_response = []
             for idx, chunk in enumerate(chat_completion):
@@ -172,10 +182,19 @@ async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme
 
             # 保存完整的对话到数据库
             full_response = "".join(full_response)
-            messages: list[dict[str, str]] = request.messages + [{"role": "assistant", "content": full_response}]
+            messages: list[dict[str, str]] = request.messages + [
+                {"role": "assistant", "content": full_response}
+            ]
             input_tokens = sum(len(message["content"]) for message in request.messages)
             output_tokens = len(full_response)
-            save_conversation(user, model, messages, input_tokens, output_tokens, request.conversation_id)
+            save_conversation(
+                user,
+                model,
+                messages,
+                input_tokens,
+                output_tokens,
+                request.conversation_id,
+            )
 
             yield "data: [DONE]\n\n"
 
@@ -188,7 +207,9 @@ async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme
     messages = request.messages + [{"role": "assistant", "content": response_str}]
     input_tokens = sum(len(message["content"]) for message in messages)
     output_tokens = len(response_str)
-    save_conversation(user, model, messages, input_tokens, output_tokens, request.conversation_id)
+    save_conversation(
+        user, model, messages, input_tokens, output_tokens, request.conversation_id
+    )
 
     return chat_completion
 

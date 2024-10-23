@@ -10,6 +10,10 @@ import random
 app = FastAPI()
 
 
+REFERENCE_START = "<reference>"
+REFERENCE_END = "</reference>"
+
+
 # 与声明查询参数一样，包含默认值的模型属性是可选的，否则就是必选的。默认值为 None 的模型属性也是可选的。
 class ChatRequest(BaseModel):
     model: str | None = Field(
@@ -63,9 +67,9 @@ class ChatCompletionMessage(BaseModel):
         examples=["你是谁?"],
     )
     # 允许添加额外字段
-    reference: list[str] | None = Field(
+    references: list[str] | None = Field(
         None,
-        description="The reference text(s) used for generating the response",
+        description="The references text(s) used for generating the response",
         examples=[["book1", "book2"]],
     )
     role: str = Field(
@@ -267,20 +271,27 @@ class ChatCompletionChunk(BaseModel):
 async def chat(request: ChatRequest):
     print(request)
 
-    if not request.messages or len(request.messages) == 0:
+    messages = request.messages
+    print(messages)
+
+    if not messages or len(messages) == 0:
         raise HTTPException(status_code=400, detail="No messages provided")
 
-    role = request.messages[-1].get("role", "")
+    role = messages[-1].get("role", "")
     if role not in ["user", "assistant"]:
         raise HTTPException(status_code=400, detail="Invalid role")
 
-    content = request.messages[-1].get("content", "")
+    content = messages[-1].get("content", "")
     if not content:
         raise HTTPException(status_code=400, detail="content is empty")
     content_len = len(content)
 
     number = str(np.random.randint(0, 100, 10))
     print(f"number: {number}")
+    references = [f"book{i+1}" for i in np.random.randint(1, 5, 3)]
+    references_str = "\n".join(
+        [f"{REFERENCE_START}{r}{REFERENCE_END}" for r in references]
+    )
 
     session_id = random.getrandbits(64)
 
@@ -319,7 +330,10 @@ async def chat(request: ChatRequest):
                     ChatCompletionChunkChoice(
                         index=0,
                         finish_reason="stop",
-                        delta=ChoiceDelta(),
+                        delta=ChoiceDelta(
+                            content=references_str,
+                            references=references,
+                        ),
                     )
                 ],
                 created=time.time(),
@@ -345,7 +359,8 @@ async def chat(request: ChatRequest):
                 index=0,
                 finish_reason="stop",
                 message=ChatCompletionMessage(
-                    content=number,
+                    content=number + "\n" + references_str,
+                    references=references,
                     role="assistant",
                 ),
             ),

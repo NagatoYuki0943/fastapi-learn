@@ -25,7 +25,11 @@ client = OpenAI(
 )
 
 
-messages = [{"role": "user", "content": "hello"}]
+messages = [
+    {"role": "user", "content": "你是谁"},
+    {"role": "assistant", "content": "我是你的小助手"},
+    {"role": "user", "content": "讲一个猫和老鼠的故事"},
+]
 
 
 chat_completions: ChatCompletion = client.chat.completions.create(

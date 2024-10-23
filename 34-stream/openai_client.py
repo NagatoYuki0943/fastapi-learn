@@ -135,7 +135,11 @@ if __name__ == "__main__":
     data = {
         # "model": "moonshot-v1-8k",
         "model": "internlm/internlm2_5-7b-chat",
-        "messages": [{"role": "user", "content": "讲一个猫和老鼠的故事"}],
+        "messages": [
+            {"role": "user", "content": "你是谁"},
+            {"role": "assistant", "content": "我是你的小助手"},
+            {"role": "user", "content": "讲一个猫和老鼠的故事"},
+        ],
         "max_tokens": 1024,
         "n": 1,
         "temperature": 0.8,
