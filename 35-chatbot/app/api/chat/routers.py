@@ -198,7 +198,7 @@ async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme
 
                 # 保存完整的对话到数据库
                 full_response = "".join(full_response)
-                messages_to_save: list[dict[str, str]] = messages + [
+                messages_to_save: list[dict[str, str | list]] = messages + [
                     {
                         "role": "assistant",
                         "content": full_response,
@@ -228,7 +228,7 @@ async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme
             references.extend(choice.message.references)
 
         # 保存到数据库
-        messages_to_save: list[dict[str, str]] = messages + [
+        messages_to_save: list[dict[str, str | list]] = messages + [
             {"role": "assistant", "content": response_str, "references": references}
         ]
         input_tokens = sum(len(message["content"]) for message in messages)
