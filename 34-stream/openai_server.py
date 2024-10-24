@@ -10,10 +10,6 @@ import random
 app = FastAPI()
 
 
-REFERENCE_START = "<reference>"
-REFERENCE_END = "</reference>"
-
-
 # 与声明查询参数一样，包含默认值的模型属性是可选的，否则就是必选的。默认值为 None 的模型属性也是可选的。
 class ChatRequest(BaseModel):
     model: str | None = Field(
@@ -21,7 +17,7 @@ class ChatRequest(BaseModel):
         description="The model used for generating the response",
         examples=["gpt4o", "gpt4"],
     )
-    messages: list[dict[str, str]] = Field(
+    messages: list[dict[str, str | list]] = Field(
         None,
         description="List of dictionaries containing the input text and the corresponding user id",
         examples=[[{"role": "user", "content": "你是谁?"}]],
@@ -269,10 +265,10 @@ class ChatCompletionChunk(BaseModel):
 # http://127.0.0.1:8000/docs
 @app.post("/v1/chat/completions", response_model=ChatCompletion)
 async def chat(request: ChatRequest):
-    print(request)
+    print("request: ", request)
 
     messages = request.messages
-    print(messages)
+    print("messages: ", messages)
 
     if not messages or len(messages) == 0:
         raise HTTPException(status_code=400, detail="No messages provided")
@@ -289,9 +285,6 @@ async def chat(request: ChatRequest):
     number = str(np.random.randint(0, 100, 10))
     print(f"number: {number}")
     references = [f"book{i+1}" for i in np.random.randint(1, 5, 3)]
-    references_str = "\n".join(
-        [f"{REFERENCE_START}{r}{REFERENCE_END}" for r in references]
-    )
 
     session_id = random.getrandbits(64)
 
@@ -331,7 +324,6 @@ async def chat(request: ChatRequest):
                         index=0,
                         finish_reason="stop",
                         delta=ChoiceDelta(
-                            content=references_str,
                             references=references,
                         ),
                     )
@@ -359,7 +351,7 @@ async def chat(request: ChatRequest):
                 index=0,
                 finish_reason="stop",
                 message=ChatCompletionMessage(
-                    content=number + "\n" + references_str,
+                    content=number,
                     references=references,
                     role="assistant",
                 ),

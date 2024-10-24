@@ -1,9 +1,9 @@
 # https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/api_server.py
-import os
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Annotated
+import openai
 from openai import OpenAI
 from openai.types.chat.chat_completion import ChatCompletion
 
@@ -50,7 +50,7 @@ class ChatRequest(BaseModel):
         description="The model used for generating the response",
         examples=["gpt4o", "gpt4"],
     )
-    messages: list[dict[str, str]] = Field(
+    messages: list[dict[str, str | list]] = Field(
         None,
         description="List of dictionaries containing the input text and the corresponding user id",
         examples=[[{"role": "user", "content": "你是谁?"}]],
@@ -130,7 +130,7 @@ def save_conversation(
 @router.post("/v1/chat/completions", response_model=ChatCompletion)
 async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme)]):
     user_id = int(verify_access_token(token))
-    print(user_id)
+    print("user_id: ", user_id)
 
     # 验证用户和模型
     user: UserDB = session.query(UserDB).get(user_id)
@@ -143,75 +143,106 @@ async def chat(request: ChatRequest, token: Annotated[str, Depends(oauth2_scheme
         session.add(model)
         session.commit()
 
-    print(request)
-    if not request.messages or len(request.messages) == 0:
+    print("request: ", request)
+
+    messages = request.messages
+    print("messages: ", messages)
+
+    if not messages or len(messages) == 0:
         raise HTTPException(status_code=400, detail="No messages provided")
 
-    role = request.messages[-1].get("role", "")
+    role = messages[-1].get("role", "")
     if role not in ["user", "assistant"]:
         raise HTTPException(status_code=400, detail="Invalid role")
 
-    query = request.messages[-1].get("content", "")
+    query = messages[-1].get("content", "")
     if not query:
         raise HTTPException(status_code=400, detail="query is empty")
 
-    chat_completion: ChatCompletion = client.chat.completions.create(
-        messages=request.messages,
-        model="internlm/internlm2_5-7b-chat",
-        max_tokens=request.max_tokens,
-        n=request.n,  # 为每条输入消息生成多少个结果，默认为 1
-        presence_penalty=0.0,  # 存在惩罚，介于-2.0到2.0之间的数字。正值会根据新生成的词汇是否出现在文本中来进行惩罚，增加模型讨论新话题的可能性
-        frequency_penalty=0.0,  # 频率惩罚，介于-2.0到2.0之间的数字。正值会根据新生成的词汇在文本中现有的频率来进行惩罚，减少模型一字不差重复同样话语的可能性
-        stream=request.stream,  # 是否流式响应
-        temperature=request.temperature,
-        top_p=request.top_p,
-    )
+    try:
+        chat_completion: ChatCompletion = client.chat.completions.create(
+            messages=messages,
+            model="internlm/internlm2_5-7b-chat",
+            max_tokens=request.max_tokens,
+            n=request.n,  # 为每条输入消息生成多少个结果，默认为 1
+            presence_penalty=0.0,  # 存在惩罚，介于-2.0到2.0之间的数字。正值会根据新生成的词汇是否出现在文本中来进行惩罚，增加模型讨论新话题的可能性
+            frequency_penalty=0.0,  # 频率惩罚，介于-2.0到2.0之间的数字。正值会根据新生成的词汇在文本中现有的频率来进行惩罚，减少模型一字不差重复同样话语的可能性
+            stream=request.stream,  # 是否流式响应
+            temperature=request.temperature,
+            top_p=request.top_p,
+        )
+    except openai.APIError as e:
+        print(f"OpenAI API返回错误: {e}")
+        raise HTTPException(status_code=e.code, detail="OpenAI API error")
+    except Exception as e:
+        print(f"发生其他错误: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    else:
+        # 流式响应
+        if request.stream:
 
-    # 流式响应
-    if request.stream:
+            async def generate():
+                full_response = []
+                references = []
+                for chunk in chat_completion:
+                    chunk_message = chunk.choices[0].delta
 
-        async def generate():
-            full_response = []
-            for idx, chunk in enumerate(chat_completion):
-                chunk_message = chunk.choices[0].delta
-                if not chunk_message.content:
-                    continue
-                response_str = chunk_message.content
-                full_response.append(response_str)
-                yield f"data: {chunk.model_dump_json()}\n\n"
+                    if chunk_message.references:
+                        references.extend(chunk_message.references)
 
-            # 保存完整的对话到数据库
-            full_response = "".join(full_response)
-            messages: list[dict[str, str]] = request.messages + [
-                {"role": "assistant", "content": full_response}
-            ]
-            input_tokens = sum(len(message["content"]) for message in request.messages)
-            output_tokens = len(full_response)
-            save_conversation(
-                user,
-                model,
-                messages,
-                input_tokens,
-                output_tokens,
-                request.conversation_id,
-            )
+                    response_str = chunk_message.content
+                    if response_str:
+                        full_response.append(response_str)
 
-            yield "data: [DONE]\n\n"
+                    yield f"data: {chunk.model_dump_json()}\n\n"
 
-        return StreamingResponse(generate())
+                # 保存完整的对话到数据库
+                full_response = "".join(full_response)
+                messages_to_save: list[dict[str, str]] = messages + [
+                    {
+                        "role": "assistant",
+                        "content": full_response,
+                        "references": references,
+                    }
+                ]
+                input_tokens = sum(len(message["content"]) for message in messages)
+                output_tokens = len(full_response)
+                save_conversation(
+                    user,
+                    model,
+                    messages_to_save,
+                    input_tokens,
+                    output_tokens,
+                    request.conversation_id,
+                )
 
-    # 非流式响应
-    response_str = chat_completion.choices[0].message.content
+                yield "data: [DONE]\n\n"
 
-    # 保存到数据库
-    messages = request.messages + [{"role": "assistant", "content": response_str}]
-    input_tokens = sum(len(message["content"]) for message in messages)
-    output_tokens = len(response_str)
-    save_conversation(
-        user, model, messages, input_tokens, output_tokens, request.conversation_id
-    )
+            return StreamingResponse(generate())
 
-    return chat_completion
+        # 非流式响应
+        choice = chat_completion.choices[0]
+        response_str: str = choice.message.content
+        references = []
+        if choice.message.references:
+            references.extend(choice.message.references)
+
+        # 保存到数据库
+        messages_to_save: list[dict[str, str]] = messages + [
+            {"role": "assistant", "content": response_str, "references": references}
+        ]
+        input_tokens = sum(len(message["content"]) for message in messages)
+        output_tokens = len(response_str)
+        save_conversation(
+            user,
+            model,
+            messages_to_save,
+            input_tokens,
+            output_tokens,
+            request.conversation_id,
+        )
+
+        return chat_completion
 
 
 # 与声明查询参数一样，包含默认值的模型属性是可选的，否则就是必选的。默认值为 None 的模型属性也是可选的。

@@ -137,7 +137,11 @@ if __name__ == "__main__":
         "model": "internlm/internlm2_5-7b-chat",
         "messages": [
             {"role": "user", "content": "你是谁"},
-            {"role": "assistant", "content": "我是你的小助手"},
+            {
+                "role": "assistant",
+                "content": "我是你的小助手",
+                "reference": ["book1", "book3"],
+            },
             {"role": "user", "content": "讲一个猫和老鼠的故事"},
         ],
         "max_tokens": 1024,
