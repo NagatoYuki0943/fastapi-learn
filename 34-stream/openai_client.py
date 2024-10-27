@@ -155,7 +155,7 @@ if __name__ == "__main__":
                 "content": "我是你的小助手",
                 "reference": ["book1", "book3"],
             },
-            {"role": "user", "content": "讲一个猫和老鼠的故事"},
+            {"role": "user", "content": "猫和老鼠的作者是谁?"},
         ],
         "max_tokens": 1024,
         "n": 1,
