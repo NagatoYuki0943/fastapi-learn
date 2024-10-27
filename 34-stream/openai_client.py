@@ -38,6 +38,8 @@ def requests_chat(data: dict):
     response: requests.Response = requests.post(
         URL, json=data, headers=headers, timeout=60, stream=stream
     )
+    response.raise_for_status()
+
     if not stream:
         yield response.json()
     else:
@@ -63,11 +65,15 @@ def httpx_sync_chat(data: dict):
             response: httpx.Response = client.post(
                 URL, json=data, headers=headers, timeout=60
             )
+            response.raise_for_status()
+
             yield response.json()
         else:
             with client.stream(
                 "POST", URL, json=data, headers=headers, timeout=60
             ) as response:
+                response.raise_for_status()
+
                 chunk: str
                 for chunk in response.iter_lines():
                     if chunk and chunk.startswith("data: "):
@@ -85,11 +91,15 @@ async def httpx_async_chat(data: dict):
             response: httpx.Response = await client.post(
                 URL, json=data, headers=headers, timeout=60
             )
+            response.raise_for_status()
+
             yield response.json()
         else:
             async with client.stream(
                 "POST", URL, json=data, headers=headers, timeout=60
             ) as response:
+                response.raise_for_status()
+
                 chunk: str
                 async for chunk in response.aiter_lines():
                     if chunk and chunk.startswith("data: "):
@@ -104,9 +114,12 @@ async def aiohttp_async_chat(data: dict):
     stream: bool = data["stream"]
 
     async with aiohttp.ClientSession() as session:
+
         async with session.post(
             URL, json=data, headers=headers, timeout=60
         ) as response:
+            response.raise_for_status()
+
             if not stream:
                 data: str = await response.text("utf-8")
                 yield json.loads(data)
