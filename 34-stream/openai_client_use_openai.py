@@ -6,6 +6,11 @@ from openai import OpenAI, Stream
 from openai.types.chat.chat_completion import ChatCompletion
 
 
+URL = "http://localhost:8000/v1/"
+# URL = "https://api.moonshot.cn/v1"
+# URL = "https://api.siliconflow.cn/v1/"
+
+
 """
 设置临时变量
 
@@ -20,7 +25,7 @@ api_key = os.getenv("API_KEY", "I AM AN API_KEY")
 
 client = OpenAI(
     api_key=api_key,  # 此处传token，不带Bearer
-    base_url="http://localhost:8000/v1/",
+    base_url=URL,
     # base_url="https://api.moonshot.cn/v1",
     # base_url="https://api.siliconflow.cn/v1/",
 )

@@ -1,12 +1,23 @@
+import os
 import requests
-import httpx
 import aiohttp
+import httpx
 import json
 
 
 URL = "http://localhost:8000/chat"
 
-api_key = "I AM AN API_KEY"
+
+"""
+设置临时变量
+
+linux:
+    export API_KEY="your token"
+
+powershell:
+    $env:API_KEY = "your token"
+"""
+api_key = os.getenv("API_KEY", "I AM AN API_KEY")
 
 # https://www.perplexity.ai/search/xia-mian-shi-yi-ge-http-qing-q-dxXvXy_8TbaGcy3n_EJ6gA
 headers = {
@@ -20,19 +31,50 @@ headers = {
 def requests_chat(data: dict):
     stream: bool = data["stream"]
 
-    response: requests.Response = requests.post(
-        URL, json=data, headers=headers, timeout=60, stream=stream
-    )
-    if not stream:
-        yield response.json()
-    else:
-        chunk: bytes
-        for chunk in response.iter_lines(
-            chunk_size=8192, decode_unicode=False, delimiter=b"\n\n"
-        ):
-            if chunk:
-                decoded: str = chunk.decode("utf-8")
-                yield json.loads(decoded)
+    # response: requests.Response = requests.post(
+    #     URL, json=data, headers=headers, timeout=60, stream=stream
+    # )
+    with requests.Session() as session:
+        response: requests.Response = session.post(
+            URL, json=data, headers=headers, timeout=60, stream=stream
+        )
+        response.raise_for_status()
+
+        if not stream:
+            yield response.json()
+        else:
+            chunk: bytes
+            for chunk in response.iter_lines(
+                chunk_size=8192, decode_unicode=False, delimiter=b"\n\n"
+            ):
+                if chunk:
+                    decoded: str = chunk.decode("utf-8")
+                    yield json.loads(decoded)
+
+
+# https://www.perplexity.ai/search/wo-shi-yong-aiohttpshi-xian-mo-6J27VL0aQsGNCykznLPlMw
+async def aiohttp_async_chat(data: dict):
+    stream: bool = data["stream"]
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            URL, json=data, headers=headers, timeout=60
+        ) as response:
+            response.raise_for_status()
+
+            if not stream:
+                data: str = await response.text("utf-8")
+                yield json.loads(data)
+            else:
+                chunk: bytes
+                buffer = ""
+                async for chunk in response.content.iter_any():
+                    if chunk:
+                        buffer += chunk.decode("utf-8")
+                        # openai api returns \n\n as a delimiter for messages
+                        while "\n\n" in buffer:
+                            message, buffer = buffer.split("\n\n", 1)
+                            yield json.loads(message)
 
 
 # help: https://www.perplexity.ai/search/wo-shi-yong-requests-shi-xian-q_g712n3SBObB5xH_2fnMQ
@@ -44,11 +86,15 @@ def httpx_sync_chat(data: dict):
             response: httpx.Response = client.post(
                 URL, json=data, headers=headers, timeout=60
             )
+            response.raise_for_status()
+
             yield response.json()
         else:
             with client.stream(
                 "POST", URL, json=data, headers=headers, timeout=60
             ) as response:
+                response.raise_for_status()
+
                 chunk: str
                 for chunk in response.iter_lines():
                     if chunk:
@@ -63,38 +109,19 @@ async def httpx_async_chat(data: dict):
             response: httpx.Response = await client.post(
                 URL, json=data, headers=headers, timeout=60
             )
+            response.raise_for_status()
+
             yield response.json()
         else:
             async with client.stream(
                 "POST", URL, json=data, headers=headers, timeout=60
             ) as response:
+                response.raise_for_status()
+
                 chunk: str
                 async for chunk in response.aiter_lines():
                     if chunk:
                         yield json.loads(chunk)
-
-
-# https://www.perplexity.ai/search/wo-shi-yong-aiohttpshi-xian-mo-6J27VL0aQsGNCykznLPlMw
-async def aiohttp_async_chat(data: dict):
-    stream: bool = data["stream"]
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            URL, json=data, headers=headers, timeout=60
-        ) as response:
-            if not stream:
-                data: str = await response.text("utf-8")
-                yield json.loads(data)
-            else:
-                chunk: bytes
-                buffer = ""
-                async for chunk in response.content.iter_any():
-                    if chunk:
-                        buffer += chunk.decode("utf-8")
-                        # openai api returns \n\n as a delimiter for messages
-                        while "\n\n" in buffer:
-                            message, buffer = buffer.split("\n\n", 1)
-                            yield json.loads(message)
 
 
 async def async_chat(data: dict, func: callable):
@@ -132,10 +159,11 @@ if __name__ == "__main__":
 
     import asyncio
 
-    asyncio.run(async_chat(data, httpx_async_chat))
-    asyncio.run(async_chat(data_stream, httpx_async_chat))
+    asyncio.run(async_chat(data, aiohttp_async_chat))
+    asyncio.run(async_chat(data_stream, aiohttp_async_chat))
 
     print("\n")
 
-    asyncio.run(async_chat(data, aiohttp_async_chat))
-    asyncio.run(async_chat(data_stream, aiohttp_async_chat))
+    asyncio.run(async_chat(data, httpx_async_chat))
+    asyncio.run(async_chat(data_stream, httpx_async_chat))
+
