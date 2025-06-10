@@ -98,6 +98,8 @@ else:
         print(choice.message.content)
         # [ 2 84 42 60 92  0 53 58 44 24]
 
+
+try:
     chat_completions: Stream = client.chat.completions.create(
         messages=messages,
         # model="moonshot-v1-8k",
@@ -110,6 +112,11 @@ else:
         temperature=0.8,
         top_p=0.8,
     )
+except openai.APIError as e:
+    print(f"OpenAI API返回错误: {e}")
+except Exception as e:
+    print(f"发生其他错误: {e}")
+else:
     print(chat_completions)
     # <openai.Stream object at 0x000002294D483AF0>
 
